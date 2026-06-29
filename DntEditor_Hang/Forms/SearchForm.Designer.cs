@@ -56,7 +56,7 @@ namespace DntEditor_Hang.Forms
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(391, 25);
+            this.button1.Location = new System.Drawing.Point(395, 80);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(117, 44);
             this.button1.TabIndex = 2;
@@ -84,7 +84,7 @@ namespace DntEditor_Hang.Forms
             this.checkBox1.AutoSize = true;
             this.checkBox1.Checked = true;
             this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(392, 91);
+            this.checkBox1.Location = new System.Drawing.Point(406, 34);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(106, 22);
             this.checkBox1.TabIndex = 5;
