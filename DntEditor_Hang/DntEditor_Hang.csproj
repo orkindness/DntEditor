@@ -115,6 +115,7 @@
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\IniHelpers.cs" />
     <Compile Include="Models\AppConfig.cs" />
+    <Compile Include="Models\DntFileItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\BatchCryptoForm.resx">

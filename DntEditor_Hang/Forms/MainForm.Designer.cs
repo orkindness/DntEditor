@@ -102,9 +102,9 @@ namespace DntEditor_Hang.Forms
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 767);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 1058);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1107, 31);
+            this.statusStrip1.Size = new System.Drawing.Size(1523, 31);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -116,7 +116,6 @@ namespace DntEditor_Hang.Forms
             // 
             // menuStrip1
             // 
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.文件ToolStripMenuItem,
@@ -128,7 +127,7 @@ namespace DntEditor_Hang.Forms
             this.dNT加解密ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1107, 32);
+            this.menuStrip1.Size = new System.Drawing.Size(1523, 32);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -416,16 +415,16 @@ namespace DntEditor_Hang.Forms
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 32);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1107, 735);
+            this.panel1.Size = new System.Drawing.Size(1523, 1026);
             this.panel1.TabIndex = 2;
             // 
             // panel4
             // 
             this.panel4.Controls.Add(this.dataGridView1);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(228, 136);
+            this.panel4.Location = new System.Drawing.Point(494, 136);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(879, 599);
+            this.panel4.Size = new System.Drawing.Size(1029, 890);
             this.panel4.TabIndex = 3;
             // 
             // dataGridView1
@@ -436,14 +435,14 @@ namespace DntEditor_Hang.Forms
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 62;
             this.dataGridView1.RowTemplate.Height = 30;
-            this.dataGridView1.Size = new System.Drawing.Size(879, 599);
+            this.dataGridView1.Size = new System.Drawing.Size(1029, 890);
             this.dataGridView1.TabIndex = 0;
             // 
             // splitter1
             // 
-            this.splitter1.Location = new System.Drawing.Point(225, 136);
+            this.splitter1.Location = new System.Drawing.Point(491, 136);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 599);
+            this.splitter1.Size = new System.Drawing.Size(3, 890);
             this.splitter1.TabIndex = 2;
             this.splitter1.TabStop = false;
             // 
@@ -453,8 +452,9 @@ namespace DntEditor_Hang.Forms
             this.panel3.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel3.Location = new System.Drawing.Point(0, 136);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(225, 599);
+            this.panel3.Size = new System.Drawing.Size(491, 890);
             this.panel3.TabIndex = 1;
+            this.panel3.Visible = false;
             // 
             // dataGridView2
             // 
@@ -462,9 +462,9 @@ namespace DntEditor_Hang.Forms
             this.dataGridView2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView2.Location = new System.Drawing.Point(0, 0);
             this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.RowHeadersWidth = 62;
+            this.dataGridView2.RowHeadersWidth = 30;
             this.dataGridView2.RowTemplate.Height = 30;
-            this.dataGridView2.Size = new System.Drawing.Size(225, 599);
+            this.dataGridView2.Size = new System.Drawing.Size(491, 890);
             this.dataGridView2.TabIndex = 0;
             // 
             // splitter2
@@ -472,7 +472,7 @@ namespace DntEditor_Hang.Forms
             this.splitter2.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitter2.Location = new System.Drawing.Point(0, 133);
             this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(1107, 3);
+            this.splitter2.Size = new System.Drawing.Size(1523, 3);
             this.splitter2.TabIndex = 0;
             this.splitter2.TabStop = false;
             // 
@@ -491,7 +491,7 @@ namespace DntEditor_Hang.Forms
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1107, 133);
+            this.panel2.Size = new System.Drawing.Size(1523, 133);
             this.panel2.TabIndex = 0;
             // 
             // label1
@@ -578,7 +578,7 @@ namespace DntEditor_Hang.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1107, 798);
+            this.ClientSize = new System.Drawing.Size(1523, 1089);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);

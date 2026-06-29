@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DntEditor_Hang.Models;
+using DntEditor_Hang.Helpers;
+using System.IO;
 
 namespace DntEditor_Hang.Forms
 {
@@ -24,8 +26,89 @@ namespace DntEditor_Hang.Forms
         {
             InitializeComponent();
             AppConfig.Load();
+            LoadDntFilesToGrid(AppConfig.DntPath);
         }
+        #region dnt目录
+        /// <summary>
+        /// 加载DNT文件列表并匹配INI翻译
+        /// </summary>
+        /// <param name="folderPath">DNT文件所在的文件夹路径</param>
+        private void LoadDntFilesToGrid(string folderPath)
+        {
+            // 1. 基础安全校验
+            if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+            {
+                return;
+            }
+            // 2. 定位并读取翻译 INI 文件 (假设翻译文件放在软件同级目录下)
+            Dictionary<string, string> translationDict = GlobalHelper.GetTranslationDict(GlobalHelper.AppRootPath, "dnt翻译.ini");
 
+            if (translationDict==null)
+            {
+                return;
+            }
+            // 3. 获取目标路径下所有的 .dnt 文件
+            string[] dntFiles = Directory.GetFiles(folderPath, "*.dnt", SearchOption.TopDirectoryOnly);
+
+            // 4. 开始匹配并组装数据集
+            List<DntFileItem> itemList = new List<DntFileItem>();
+            int serialNumber = 1;
+
+            foreach (string filePath in dntFiles)
+            {
+                // 获取带后缀的文件名（例如: skill.dnt）
+                string fileNameWithExt = Path.GetFileName(filePath);
+
+                // 从字典中匹配翻译，如果匹配不到则显示“未翻译”
+                string chineseName = translationDict.ContainsKey(fileNameWithExt)
+                    ? translationDict[fileNameWithExt]
+                    : "";
+
+                itemList.Add(new DntFileItem
+                {
+                    Index = serialNumber++,
+                    FileName = fileNameWithExt,
+                    ChineseName = chineseName
+                });
+            }
+
+            // 5. 渲染绑定到 dataGridView2
+            BindToDataGridView(itemList);
+        }
+        private void BindToDataGridView(List<DntFileItem> items)
+        {
+            // 清空旧数据和旧列头
+            dataGridView2.DataSource = null;
+            dataGridView2.Columns.Clear();
+
+            // 开启双缓冲，防止大数量滚动时表格闪烁（硬核优化）
+            Type dgvType = dataGridView2.GetType();
+            System.Reflection.PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            pi?.SetValue(dataGridView2, true, null);
+
+            // 绑定新数据源
+            dataGridView2.DataSource = items;
+
+            // 汉化并配置列名
+            dataGridView2.Columns["Index"].HeaderText = "序列";
+            dataGridView2.Columns["Index"].Width = 40; // 序列列可以窄一点
+
+            dataGridView2.Columns["FileName"].HeaderText = "文件名称";
+            dataGridView2.Columns["FileName"].Width = 200;
+
+            dataGridView2.Columns["ChineseName"].HeaderText = "中文名称";
+
+            // 让最后一列“中文名称”自动填满剩余的所有表格宽度，美化排版
+            dataGridView2.Columns["ChineseName"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            // 禁止用户在表格最后一行手动添加空白新行
+            dataGridView2.AllowUserToAddRows = false;
+            // 设置为只能整行选择，不能单个单元格选择，更符合目录操作习惯
+            dataGridView2.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView2.ReadOnly = true;
+        }
+        #endregion
         private void 打开DNT目录ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // 切换 Pane2 的显示和隐藏状态

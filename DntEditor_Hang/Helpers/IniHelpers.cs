@@ -7,8 +7,6 @@ namespace DntEditor_Hang.Helpers
 {
     public static class IniHelper
     {
-        // 获取当前软件运行所在的绝对目录路径（末尾统一确保带有反斜杠 \）
-        private static readonly string AppRootPath = AppDomain.CurrentDomain.BaseDirectory;
 
         // 获取程序运行的同级目录下的 config.ini 路径
         public static readonly string IniPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
@@ -54,7 +52,7 @@ namespace DntEditor_Hang.Helpers
                 string subPath = trimmedPath.Substring(2);
 
                 // 拼接软件绝对根目录，并格式化为标准的 Windows 路径
-                return Path.GetFullPath(Path.Combine(AppRootPath, subPath));
+                return Path.GetFullPath(Path.Combine(GlobalHelper.AppRootPath, subPath));
             }
 
             return trimmedPath; // 如果本来就是绝对路径（如 D:\Test），原样返回
@@ -68,7 +66,7 @@ namespace DntEditor_Hang.Helpers
             if (string.IsNullOrWhiteSpace(absolutePath)) return string.Empty;
 
             string absPath = Path.GetFullPath(absolutePath.Trim());
-            string appPath = Path.GetFullPath(AppRootPath);
+            string appPath = Path.GetFullPath(GlobalHelper.AppRootPath);
 
             // 统一确保结尾有分隔符，防止因文件夹名字前缀相似导致误判（如 D:\App 和 D:\AppNew）
             if (!appPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
