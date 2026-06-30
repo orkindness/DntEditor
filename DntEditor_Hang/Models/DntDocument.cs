@@ -24,7 +24,7 @@ namespace DntEditor_Hang.Models
             = new Dictionary<string, System.Collections.IList>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// 辅助方法：快速根据列索引获取列的属性（0是PKID，1往后是动态列）
+        /// 辅助方法：快速根据列索引获取列的属性（0是中文翻译，1是PKID ,往后是动态列）
         /// </summary>
         public DntFieldDescription GetFieldAt(int columnIndex)
         {
@@ -39,9 +39,9 @@ namespace DntEditor_Hang.Models
         {
             Columns.Clear();
 
-            // 1. 【核心更改】强制注册 PKID 为一列独立的 uint 或 int 强类型空间区
+            // 1. 【核心更改】强制注册 PKID 为一列独立的 uint 或 int 强类型空间区 ChineseTranslation
+            Columns.Add("ChineseTranslation", new List<string>((int)RecordCount));
             Columns.Add("PKID", new List<uint>((int)RecordCount));
-
             // 2. 依次注册后面的动态列
             foreach (var field in Fields)
             {

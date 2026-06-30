@@ -116,6 +116,8 @@
     <Compile Include="Helpers\DntConvertHelpers.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\IniHelpers.cs" />
+    <Compile Include="Models\DntBatchTranslator.cs" />
+    <Compile Include="Models\translationDict.cs" />
     <Compile Include="Models\statusLabel.cs" />
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Models\DntFileItem.cs" />

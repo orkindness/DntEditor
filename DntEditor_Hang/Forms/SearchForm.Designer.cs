@@ -48,6 +48,7 @@ namespace DntEditor_Hang.Forms
             // 
             // comboBox1
             // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(145, 34);
             this.comboBox1.Name = "comboBox1";
@@ -62,6 +63,7 @@ namespace DntEditor_Hang.Forms
             this.button1.TabIndex = 2;
             this.button1.Text = "查 询";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // label2
             // 

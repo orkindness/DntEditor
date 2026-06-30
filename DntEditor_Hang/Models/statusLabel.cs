@@ -27,5 +27,25 @@ namespace DntEditor_Hang.Models
             return "总行数："+ rowsCount+" 总计列："+ columnCount+" | "+ timeConsumed+" | "+"当前行："+ rowIndex+"/"+ rowsCount+" | "+"当前列："+ columIndex+"/"+ columnCount;
         }
     }
+    public static class titleStatusLabel
+    {
+        public static string fileName { get; set; }
+        public static string sourceFile { get; set; }
 
-}
+        public static string toTitle()
+        {
+            if (string.IsNullOrEmpty(sourceFile) && string.IsNullOrEmpty(fileName))
+            {
+                return "DntEditor_Hang";
+            }else if (string.IsNullOrEmpty(sourceFile))
+            {
+
+                return "DntEditor_Hang" + " - [" + fileName + "]";
+            }
+
+            return "DntEditor_Hang" + " - [" + fileName + "]     使用翻译源：["+ sourceFile+"]";
+
+        }
+    }
+
+ }

@@ -43,8 +43,6 @@ namespace DntEditor_Hang.Forms
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.checkBox5 = new System.Windows.Forms.CheckBox();
-            this.button4 = new System.Windows.Forms.Button();
-            this.textBox4 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -72,7 +70,6 @@ namespace DntEditor_Hang.Forms
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(375, 28);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "测试路径名";
             // 
             // label3
             // 
@@ -93,6 +90,7 @@ namespace DntEditor_Hang.Forms
             this.button1.TabIndex = 4;
             this.button1.Text = "打开目录";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // textBox2
             // 
@@ -101,7 +99,6 @@ namespace DntEditor_Hang.Forms
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(375, 28);
             this.textBox2.TabIndex = 5;
-            this.textBox2.Text = "测试路径名2";
             // 
             // button2
             // 
@@ -111,6 +108,7 @@ namespace DntEditor_Hang.Forms
             this.button2.TabIndex = 6;
             this.button2.Text = "选择文件";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
@@ -120,6 +118,7 @@ namespace DntEditor_Hang.Forms
             this.button3.TabIndex = 7;
             this.button3.Text = "一键生成翻译源文件";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // textBox3
             // 
@@ -192,33 +191,12 @@ namespace DntEditor_Hang.Forms
             this.checkBox5.Text = "npc表";
             this.checkBox5.UseVisualStyleBackColor = true;
             // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(81, 364);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(210, 39);
-            this.button4.TabIndex = 14;
-            this.button4.Text = "删 除 源 文 件";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // textBox4
-            // 
-            this.textBox4.Enabled = false;
-            this.textBox4.Location = new System.Drawing.Point(297, 364);
-            this.textBox4.Multiline = true;
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(418, 77);
-            this.textBox4.TabIndex = 15;
-            this.textBox4.Text = "删除 所选单选框的翻译源文件";
-            // 
             // IniTranslationForm1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 485);
+            this.ClientSize = new System.Drawing.Size(800, 369);
             this.ControlBox = false;
-            this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.button4);
             this.Controls.Add(this.checkBox5);
             this.Controls.Add(this.checkBox4);
             this.Controls.Add(this.checkBox3);
@@ -257,7 +235,5 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.CheckBox checkBox4;
         private System.Windows.Forms.CheckBox checkBox5;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.TextBox textBox4;
     }
 }

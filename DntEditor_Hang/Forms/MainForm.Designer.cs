@@ -323,6 +323,7 @@ namespace DntEditor_Hang.Forms
             this.使用uistring源ToolStripMenuItem.Name = "使用uistring源ToolStripMenuItem";
             this.使用uistring源ToolStripMenuItem.Size = new System.Drawing.Size(295, 34);
             this.使用uistring源ToolStripMenuItem.Text = "使用uistring源(ctrl+1)";
+            this.使用uistring源ToolStripMenuItem.Click += new System.EventHandler(this.使用uistring源ToolStripMenuItem_Click);
             // 
             // 使用物品源ToolStripMenuItem
             // 
@@ -596,7 +597,7 @@ namespace DntEditor_Hang.Forms
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(307, 7);
+            this.button2.Location = new System.Drawing.Point(333, 7);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(176, 36);
             this.button2.TabIndex = 1;
@@ -607,10 +608,11 @@ namespace DntEditor_Hang.Forms
             // 
             this.button1.Location = new System.Drawing.Point(126, 7);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(160, 36);
+            this.button1.Size = new System.Drawing.Size(191, 36);
             this.button1.TabIndex = 1;
             this.button1.Text = "翻译列(F1)";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // checkBox1
             // 
@@ -668,7 +670,7 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        public System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.DataGridView dataGridView2;
         private System.Windows.Forms.ToolStripMenuItem 打开关闭工具栏ToolStripMenuItem;

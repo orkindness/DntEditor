@@ -129,7 +129,9 @@ namespace DntEditor_Hang.Forms
                 this.dataGridView1.Visible = true;
                 this.label2.Visible = false;
                 this.label3.Visible = false;
-                this.Text = $"DntEditor_Hang - [{Path.GetFileName(filePath)}]";
+
+                titleStatusLabel.fileName = Path.GetFileName(filePath);
+                this.Text = titleStatusLabel.toTitle();
             }
             catch (Exception ex)
             {
@@ -202,8 +204,7 @@ namespace DntEditor_Hang.Forms
             }
 
             // 4. 核心：告诉壳子表格一共有多少行数据，表格会自动生成垂直滚动条
-            var pkidList = doc.Columns["PKID"] as List<uint>;
-            dataGridView1.RowCount = pkidList.Count;
+            dataGridView1.RowCount = (int)doc.RecordCount;
         }
         // 当表格需要渲染某个格子时，会自动触发这个事件
         private void dataGridView1_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
@@ -217,6 +218,16 @@ namespace DntEditor_Hang.Forms
             // 情况 A：第 0 列 —— 最左侧中文翻译列
             if (e.ColumnIndex == 0)
             {
+                var transList = _currentDocument.Columns["ChineseTranslation"] as List<string>;
+                if (transList.Count==0)
+                {
+                    e.Value = "";
+                }
+                else
+                {
+                    e.Value = transList[e.RowIndex];
+                }
+                
                 /***
                 string currentDntFileName = Path.GetFileName(_currentLoadedFilePath);
                 if (_translationDict != null && _translationDict.TryGetValue(currentDntFileName, out string chineseName))
@@ -548,7 +559,7 @@ namespace DntEditor_Hang.Forms
         {
             if (searchForm == null || searchForm.IsDisposed)
             {
-                searchForm = new SearchForm();
+                searchForm = new SearchForm(this);
 
                 // 核心设置：不在 Windows 任务栏中显示此窗口
                 searchForm.ShowInTaskbar = false;
@@ -906,5 +917,64 @@ namespace DntEditor_Hang.Forms
                 // 这里通常留空，或者执行后续不需要保存的刷新操作
             }
         }
+
+        private void 使用uistring源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string filePath = GlobalHelper.AppRootPath + translationDicts.SourcePath + translationDicts.UistringSource+".ini";
+            translationDicts.translationDict = GlobalHelper.LoadIniTranslation(filePath);
+
+            titleStatusLabel.sourceFile = translationDicts.UistringSource;
+            this.Text = titleStatusLabel.toTitle();
+        }
+        private void translationCol()
+        {
+            // 1. UI 层的安全前置拦截
+            if (this.dataGridView1.CurrentCell == null) return;
+
+            int colIndex = this.dataGridView1.CurrentCell.ColumnIndex;
+            string sourceColumnName = this.dataGridView1.Columns[colIndex].Name;
+
+            try
+            {
+                // 2. 刷新前清空网格绑定（如果是普通模式）或暂停重绘，虚拟模式可以直接往下走
+                // this.dataGridView1.DataSource = null; 
+
+                // 3. 一行代码调用模块化翻译核心函数
+                int processedCount = translationDicts.TranslateColumnData(
+                    _currentDocument,
+                    sourceColumnName,
+                    translationDicts.translationDict
+                );
+
+                // 4. UI 刷新反馈
+                if (processedCount >= 0)
+                {
+                    if (this.dataGridView1.VirtualMode)
+                    {
+                        // 虚拟模式高性能通知重绘
+                        this.dataGridView1.Invalidate();
+                    }
+                    else
+                    {
+                        this.dataGridView1.Refresh();
+                    }
+
+                    //MessageBox.Show($"翻译碰撞完成！已成功处理 {processedCount} 行数据。", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("翻译失败，请检查数据核心列或目标翻译列是否初始化！", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"解析嵌套文本时崩溃防御: {ex.Message}", "崩溃防御", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            translationCol();
+        }
+
     }
 }

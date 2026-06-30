@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace DntEditor_Hang.Helpers
 {
@@ -12,6 +14,142 @@ namespace DntEditor_Hang.Helpers
     {
         // 获取当前软件运行所在的绝对目录路径（末尾统一确保带有反斜杠 \）
         public static readonly string AppRootPath = AppDomain.CurrentDomain.BaseDirectory;
+
+
+        /// <summary>
+        /// 加载ini文件转字典类型
+        /// </summary>
+        /// <param name="iniFilePath"></param>
+        /// <returns></returns>
+        public static Dictionary<string, string> LoadIniTranslation(string iniFilePath)
+        {
+            // 1. 创建字典用于存储键值对 (不区分大小写的键，防止匹配时因为空格或大小写对不上)
+            var translationDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            // 2. 安全检查
+            if (!File.Exists(iniFilePath))
+            {
+                throw new FileNotFoundException($"找不到指定的 INI 翻译文件: {iniFilePath}");
+            }
+
+            // 3. 采用 UTF-8 编码逐行读取，防止大文件一次性读入导致内存卡顿
+            using (FileStream fs = new FileStream(iniFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    // 4. 清除行两边的空格
+                    line = line.Trim();
+
+                    // 5. 过滤掉空白行、INI小节名(如 [UI_STRINGS])、以及注释行（以 ; 或 // 开头）
+                    if (string.IsNullOrEmpty(line) ||
+                        line.StartsWith("[") ||
+                        line.StartsWith(";") ||
+                        line.StartsWith("//"))
+                    {
+                        continue;
+                    }
+
+                    // 6. 寻找第一个等号的位置
+                    int separatorIndex = line.IndexOf('=');
+                    if (separatorIndex > 0)
+                    {
+                        // 提取等号左边的 键 (ID)
+                        string key = line.Substring(0, separatorIndex).Trim();
+
+                        // 提取等号右边的 值为 翻译文本 (使用 Substring 确保即使文本里包含 "=" 也能完整保留)
+                        string value = line.Substring(separatorIndex + 1).Trim();
+
+                        // 7. 处理之前转义过的换行符 \n，恢复为真实的换行（视你后续界面显示需求而定）
+                        value = value.Replace("\\n", Environment.NewLine);
+
+                        // 8. 存入字典（如果出现重复的Key，后面的覆盖前面的，防止闪退）
+                        translationDict[key] = value;
+                    }
+                }
+            }
+
+            return translationDict;
+        }
+
+        /// <summary>
+        /// 将xml转ini
+        /// </summary>
+        /// <param name="xmlFilePath"></param>
+        /// <param name="iniFilePath"></param>
+        /// <returns></returns>
+        public static bool ConvertXmlToIni(string xmlFilePath, string iniFilePath)
+        {
+            // 1. 安全检查
+            if (!File.Exists(xmlFilePath))
+            {
+                throw new FileNotFoundException($"找不到源 XML 文件: {xmlFilePath}");
+                return false;
+            }
+
+            Encoding fileEncoding = Encoding.UTF8;
+            StringBuilder iniBuilder = new StringBuilder();
+            //iniBuilder.AppendLine("[UI_STRINGS]");
+
+            // 2. 将整个 XML 文件作为纯文本读取到内存中
+            string xmlContent = File.ReadAllText(xmlFilePath, fileEncoding);
+
+            // 3. 【核心修复】使用正则表达式，将所有的 XML 注释 (<!-- ... -->) 彻底清除干净
+            // 这样无论注释里有多少个 "--"，在进入 XML 解析器前就已经被全部删掉了
+            xmlContent = Regex.Replace(xmlContent, @"<!--[\s\S]*?-->", string.Empty);
+
+            // 4. 使用 XmlDocument 解析清洗干净后的文本（改用 LoadXml 替代 Load）
+            XmlDocument xmlDoc = new XmlDocument();
+            try
+            {
+                xmlDoc.LoadXml(xmlContent);
+            }
+            catch (XmlException ex)
+            {
+                // 容错处理：如果还有其他 XML 语法错误，抛出更清晰的提示
+                throw new Exception($"XML 语法清洗后仍有错误，请检查文件结构。错误原因: {ex.Message}");
+                return false;
+            }
+
+            // 5. 定位并提取 <message> 节点
+            XmlNodeList messageNodes = xmlDoc.SelectNodes("//message");
+
+            if (messageNodes != null)
+            {
+                foreach (XmlNode node in messageNodes)
+                {
+                    string mid = node.Attributes?["mid"]?.Value;
+                    string text = node.InnerText;
+
+                    if (!string.IsNullOrEmpty(mid))
+                    {
+                        text = text.Trim();
+                        // 将真实的换行符替换为转义的 \n，保证 INI 文件单行格式
+                        text = text.Replace("\r", "").Replace("\n", "\\n");
+
+                        iniBuilder.AppendLine($"{mid}={text}");
+                    }
+                }
+            }
+
+            // 6. 写入到目标 INI 文件中
+            string directory = Path.GetDirectoryName(iniFilePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(iniFilePath, iniBuilder.ToString(), fileEncoding);
+            return true;
+        }
+
+        /// <summary>
+        /// 从ini文件获取翻译列表
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         public static Dictionary<string, string> GetTranslationDict(string path,string fileName)
         {
             // 2. 定位并读取翻译 INI 文件 (假设翻译文件放在软件同级目录下)
