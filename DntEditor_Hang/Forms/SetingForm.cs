@@ -14,8 +14,10 @@ namespace DntEditor_Hang.Forms
 {
     public partial class SetingForm : Form
     {
-        public SetingForm()
+        private MainForm mainForm;
+        public SetingForm(MainForm mForm)
         {
+            mainForm = mForm;
             InitializeComponent();
 
             this.MaximizeBox = false;     // 隐藏/禁用最大化按钮
@@ -48,6 +50,7 @@ namespace DntEditor_Hang.Forms
         {
             string path = GlobalHelper.SelectFolder("请选择 DNT 目录", textBox1.Text.Trim());
             if (path != null) textBox1.Text = path;
+            button2_Click(sender, e);
         }
         // DNT 目录 保存
         private void button2_Click(object sender, EventArgs e)
@@ -63,31 +66,36 @@ namespace DntEditor_Hang.Forms
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             AppConfig.IsSyncSaveEnabled = checkBox1.Checked;
-            AppConfig.Save();
+            mainForm.checkBox1_CheckedChanged();
+            //AppConfig.Save();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             string path = GlobalHelper.SelectFolder("请选择 明文 目录", textBox2.Text.Trim());
             if (path != null) textBox2.Text = path;
+            button3_Click(sender, e);
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
             string path = GlobalHelper.SelectFolder("请选择 密文 目录", textBox3.Text.Trim());
             if (path != null) textBox3.Text = path;
+            button5_Click(sender, e);
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
             string path = GlobalHelper.SelectFolder("请选择 补丁 目录", textBox4.Text.Trim());
             if (path != null) textBox4.Text = path;
+            button7_Click(sender, e);
         }
 
         private void button9_Click(object sender, EventArgs e)
         {
             string path = GlobalHelper.SelectFolder("请选择 客户端 目录", textBox5.Text.Trim());
             if (path != null) textBox5.Text = path;
+            button10_Click(sender, e);
         }
 
         private void button3_Click(object sender, EventArgs e)

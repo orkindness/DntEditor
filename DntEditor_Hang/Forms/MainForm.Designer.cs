@@ -34,6 +34,7 @@ namespace DntEditor_Hang.Forms
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.打开DNT目录ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.选择文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.保存ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.快速保存ctrlsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.保存至密文目录ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,12 +73,15 @@ namespace DntEditor_Hang.Forms
             this.批量加密解密ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel3 = new System.Windows.Forms.Panel();
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.button4 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
@@ -86,7 +90,6 @@ namespace DntEditor_Hang.Forms
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.button4 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -111,11 +114,12 @@ namespace DntEditor_Hang.Forms
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(195, 24);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(305, 24);
+            this.toolStripStatusLabel1.Text = "就绪,支持拖拽DNT或双击空白处打开";
             // 
             // menuStrip1
             // 
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.文件ToolStripMenuItem,
@@ -135,6 +139,7 @@ namespace DntEditor_Hang.Forms
             // 
             this.文件ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.打开DNT目录ToolStripMenuItem,
+            this.选择文件ToolStripMenuItem,
             this.保存ToolStripMenuItem,
             this.快速保存ctrlsToolStripMenuItem,
             this.保存至密文目录ToolStripMenuItem,
@@ -150,23 +155,33 @@ namespace DntEditor_Hang.Forms
             this.打开DNT目录ToolStripMenuItem.Text = "打开/关闭 DNT目录";
             this.打开DNT目录ToolStripMenuItem.Click += new System.EventHandler(this.打开DNT目录ToolStripMenuItem_Click);
             // 
+            // 选择文件ToolStripMenuItem
+            // 
+            this.选择文件ToolStripMenuItem.Name = "选择文件ToolStripMenuItem";
+            this.选择文件ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.选择文件ToolStripMenuItem.Text = "选择文件";
+            this.选择文件ToolStripMenuItem.Click += new System.EventHandler(this.选择文件ToolStripMenuItem_Click);
+            // 
             // 保存ToolStripMenuItem
             // 
             this.保存ToolStripMenuItem.Name = "保存ToolStripMenuItem";
             this.保存ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.保存ToolStripMenuItem.Text = "保存/覆盖";
+            this.保存ToolStripMenuItem.Click += new System.EventHandler(this.保存ToolStripMenuItem_Click);
             // 
             // 快速保存ctrlsToolStripMenuItem
             // 
             this.快速保存ctrlsToolStripMenuItem.Name = "快速保存ctrlsToolStripMenuItem";
             this.快速保存ctrlsToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.快速保存ctrlsToolStripMenuItem.Text = "快速保存(ctrl+s)";
+            this.快速保存ctrlsToolStripMenuItem.Click += new System.EventHandler(this.快速保存ctrlsToolStripMenuItem_Click);
             // 
             // 保存至密文目录ToolStripMenuItem
             // 
             this.保存至密文目录ToolStripMenuItem.Name = "保存至密文目录ToolStripMenuItem";
             this.保存至密文目录ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.保存至密文目录ToolStripMenuItem.Text = "保存至密文目录";
+            this.保存至密文目录ToolStripMenuItem.Click += new System.EventHandler(this.保存至密文目录ToolStripMenuItem_Click);
             // 
             // 退出ToolStripMenuItem
             // 
@@ -420,6 +435,8 @@ namespace DntEditor_Hang.Forms
             // 
             // panel4
             // 
+            this.panel4.Controls.Add(this.label3);
+            this.panel4.Controls.Add(this.label2);
             this.panel4.Controls.Add(this.dataGridView1);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(494, 136);
@@ -427,16 +444,43 @@ namespace DntEditor_Hang.Forms
             this.panel4.Size = new System.Drawing.Size(1029, 890);
             this.panel4.TabIndex = 3;
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("华文琥珀", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.ForeColor = System.Drawing.Color.DarkGray;
+            this.label3.Location = new System.Drawing.Point(491, 391);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(538, 33);
+            this.label3.TabIndex = 1;
+            this.label3.Text = "或者直接双击空白区域打开DNT目录";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("华文琥珀", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.ForeColor = System.Drawing.Color.DarkGray;
+            this.label2.Location = new System.Drawing.Point(491, 316);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(474, 33);
+            this.label2.TabIndex = 1;
+            this.label2.Text = "请拖动.dnt文件到窗口任意区域";
+            // 
             // dataGridView1
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.ColumnHeadersHeight = 34;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 62;
-            this.dataGridView1.RowTemplate.Height = 30;
+            this.dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dataGridView1.RowTemplate.Height = 35;
             this.dataGridView1.Size = new System.Drawing.Size(1029, 890);
             this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.VirtualMode = true;
+            this.dataGridView1.Visible = false;
+            this.dataGridView1.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView1_RowPostPaint);
             // 
             // splitter1
             // 
@@ -466,6 +510,7 @@ namespace DntEditor_Hang.Forms
             this.dataGridView2.RowTemplate.Height = 30;
             this.dataGridView2.Size = new System.Drawing.Size(491, 890);
             this.dataGridView2.TabIndex = 0;
+            this.dataGridView2.VirtualMode = true;
             // 
             // splitter2
             // 
@@ -479,6 +524,7 @@ namespace DntEditor_Hang.Forms
             // panel2
             // 
             this.panel2.AutoScroll = true;
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.panel2.Controls.Add(this.button4);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.comboBox1);
@@ -493,6 +539,15 @@ namespace DntEditor_Hang.Forms
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1523, 133);
             this.panel2.TabIndex = 0;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(126, 52);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(191, 36);
+            this.button4.TabIndex = 8;
+            this.button4.Text = "翻译覆盖所选列(F3)";
+            this.button4.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
@@ -529,6 +584,7 @@ namespace DntEditor_Hang.Forms
             this.button3.TabIndex = 3;
             this.button3.Text = "定 位";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // textBox1
             // 
@@ -536,6 +592,7 @@ namespace DntEditor_Hang.Forms
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(82, 28);
             this.textBox1.TabIndex = 2;
+            this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
             // 
             // button2
             // 
@@ -564,18 +621,11 @@ namespace DntEditor_Hang.Forms
             this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "ctrl+s同时保存至(明文/密文)目录";
             this.checkBox1.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(126, 52);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(191, 36);
-            this.button4.TabIndex = 8;
-            this.button4.Text = "翻译覆盖所选列(F3)";
-            this.button4.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // MainForm
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1523, 1089);
@@ -591,6 +641,7 @@ namespace DntEditor_Hang.Forms
             this.menuStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
+            this.panel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
@@ -661,5 +712,8 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.ToolStripMenuItem 选择文件ToolStripMenuItem;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
     }
 }

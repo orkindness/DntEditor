@@ -26,7 +26,10 @@ namespace DntEditor_Hang.Helpers
         {
             WritePrivateProfileString(section, key, ToRelative(value), path);
         }
-
+        public static void WriteWithoutRelative(string section, string key, string value, string path)
+        {
+            WritePrivateProfileString(section, key, value, path);
+        }
         /// <summary>
         /// 读取 INI 配置（字符串）
         /// </summary>

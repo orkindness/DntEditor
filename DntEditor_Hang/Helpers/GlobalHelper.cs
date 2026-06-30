@@ -90,5 +90,65 @@ namespace DntEditor_Hang.Helpers
             }
             return null;
         }
+        /// <summary>
+        /// 选择文件弹窗
+        /// </summary>
+        /// <param name="title"></param>标题
+        /// <param name="rawDisplayName"></param>显示内容
+        /// <param name="extensionList"></param>过滤规则
+        /// <param name="initialPath"></param>初始化路径
+        /// <returns></returns>
+        public static string SelectFile(string title, string rawDisplayName, string extensionList, string initialPath = "")
+        {
+            using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
+            {
+                dialog.Title = title;
+
+                // 核心修改 1：关闭文件夹选择模式，切换为文件选择模式
+                dialog.IsFolderPicker = false;
+
+                // 核心修改 2：添加文件后缀名过滤器，只允许用户选择 .dnt 文件
+                //dialog.Filters.Add(new CommonFileDialogFilter("DNT数据文件 (*.dnt)", "*.dnt"));
+                dialog.Filters.Add(new CommonFileDialogFilter(rawDisplayName, extensionList));
+                // 如果想让用户也能切换查看“所有文件”，可以取消下面这行的注释：
+                // dialog.Filters.Add(new CommonFileDialogFilter("所有文件 (*.*)", "*.*"));
+
+                dialog.AddToMostRecentlyUsedList = false;
+                dialog.AllowNonFileSystemItems = false;
+                dialog.EnsureFileExists = true; // 确保用户选择的文件必须真实存在
+                dialog.EnsurePathExists = true;
+                dialog.EnsureReadOnly = false;
+                dialog.EnsureValidNames = true;
+                dialog.Multiselect = false;
+                dialog.ShowPlacesList = true;
+
+                // 核心修改 3：因为是寻找文件，保底的路径检查建议兼容“文件夹路径”或“直接定位到文件所在的目录”
+                if (!string.IsNullOrWhiteSpace(initialPath))
+                {
+                    // 如果传入的是完整文件路径，先提取其所在的文件夹目录
+                    string directory = Directory.Exists(initialPath) ? initialPath : Path.GetDirectoryName(initialPath);
+
+                    if (!string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory))
+                    {
+                        dialog.InitialDirectory = directory;
+                    }
+                    else
+                    {
+                        dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    }
+                }
+                else
+                {
+                    dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                }
+
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    // 返回用户选择的 .dnt 文件的完整绝对路径
+                    return dialog.FileName;
+                }
+            }
+            return null;
+        }
     }
 }

@@ -72,7 +72,7 @@ namespace DntEditor_Hang.Models
             IniHelper.Write("Paths", "ClientPath", ClientPath, IniHelper.IniPath);
 
             // 布尔值转为字符串存储
-            IniHelper.Write("Settings", "IsSyncSaveEnabled", IsSyncSaveEnabled.ToString().ToLower(), IniHelper.IniPath);
+            IniHelper.WriteWithoutRelative("Settings", "IsSyncSaveEnabled", IsSyncSaveEnabled.ToString().ToLower(), IniHelper.IniPath);
         }
     }
 }

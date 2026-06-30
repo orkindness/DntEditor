@@ -78,6 +78,7 @@ namespace DntEditor_Hang.Forms
             this.button1.TabIndex = 4;
             this.button1.Text = "▼加密▼";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -88,6 +89,7 @@ namespace DntEditor_Hang.Forms
             this.button2.TabIndex = 5;
             this.button2.Text = "△解密△";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // BatchCryptoForm
             // 

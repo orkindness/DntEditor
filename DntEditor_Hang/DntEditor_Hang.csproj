@@ -112,10 +112,15 @@
     <Compile Include="Forms\SetingForm.Designer.cs">
       <DependentUpon>SetingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CyclicXorCryptoHelper.cs" />
+    <Compile Include="Helpers\DntConvertHelpers.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\IniHelpers.cs" />
+    <Compile Include="Models\statusLabel.cs" />
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Models\DntFileItem.cs" />
+    <Compile Include="Models\DntDocument.cs" />
+    <Compile Include="Models\DntFieldType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\BatchCryptoForm.resx">
