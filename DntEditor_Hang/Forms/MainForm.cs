@@ -24,14 +24,16 @@ namespace DntEditor_Hang.Forms
         private DntDeepSearchForm dntDeepSearchForm = null;
         private PakPackerForm PakPackerForm = null;
 
-        private string _currentLoadedFilePath = string.Empty; // 记录当前打开的文件路径
-        private string _currentLoadedFileName = string.Empty;// 记录当前打开的文件名
+        public string _currentLoadedFilePath = string.Empty; // 记录当前打开的文件路径
+        public string _currentLoadedFileName = string.Empty;// 记录当前打开的文件名
         private DntDocument _currentDocument = null;          // 记录当前打开的文档对象
+        private translationDicts dicts = null;  //翻译字典
         public MainForm()
         {
             InitializeComponent();
             AppConfig.Load();
             LoadDntFilesToGrid(AppConfig.DntPath);
+            initilizationDicts();
             this.checkBox1.Checked = AppConfig.IsSyncSaveEnabled;//配置文件内容:同时保存明文密文目录
 
 
@@ -614,7 +616,7 @@ namespace DntEditor_Hang.Forms
         {
             if (IniTranslationForm1 == null || IniTranslationForm1.IsDisposed)
             {
-                IniTranslationForm1 = new IniTranslationForm1();
+                IniTranslationForm1 = new IniTranslationForm1(dicts);
 
                 IniTranslationForm1.ShowInTaskbar = false;
 
@@ -630,7 +632,7 @@ namespace DntEditor_Hang.Forms
         {
             if (IniTranslationForm2 == null || IniTranslationForm2.IsDisposed)
             {
-                IniTranslationForm2 = new IniTranslationForm2();
+                IniTranslationForm2 = new IniTranslationForm2(this);
 
                 IniTranslationForm2.ShowInTaskbar = false;
 
@@ -918,13 +920,96 @@ namespace DntEditor_Hang.Forms
             }
         }
 
-        private void 使用uistring源ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void initilizationDicts()
         {
-            string filePath = GlobalHelper.AppRootPath + translationDicts.SourcePath + translationDicts.UistringSource+".ini";
-            translationDicts.translationDict = GlobalHelper.LoadIniTranslation(filePath);
+            /***
+            dicts = new translationDicts();
+            string filePath = GlobalHelper.AppRootPath + translationDicts.SourcePath + translationDicts.UistringSource + ".ini";
+            dicts.translationDict = GlobalHelper.LoadIniTranslation(filePath);
 
             titleStatusLabel.sourceFile = translationDicts.UistringSource;
             this.Text = titleStatusLabel.toTitle();
+            ***/
+            loadCombobox1();
+            comboBox1.SelectedValue = translationDicts.UistringSource;
+        }
+        private void loadCombobox1()
+        {
+            // 1.创建一个列表用于存放列对象
+            List<sourceFilePathItem> columnItems = new List<sourceFilePathItem>();
+            string sourcePath = GlobalHelper.AppRootPath + translationDicts.SourcePath;
+            //uistring
+            //itemtable
+            //skilltable
+            //maptable
+            //monstertable
+            //npctable
+            columnItems.Add(new sourceFilePathItem
+            {//uistring
+                HeaderText = "uistring", // 比如 "列1"、"主键ID"
+                filePath = sourcePath+ translationDicts.UistringSource+".ini",
+                PKName = translationDicts.UistringSource
+            });
+            columnItems.Add(new sourceFilePathItem
+            {//itemtable
+                HeaderText = "itemtable", // 比如 "列1"、"主键ID"
+                filePath = sourcePath + translationDicts.ItemSource + ".ini",
+                PKName = translationDicts.ItemSource      // 比如 "Column1"、"PKID"
+            });
+            columnItems.Add(new sourceFilePathItem
+            {//skilltable
+                HeaderText = "skilltable", // 比如 "列1"、"主键ID"
+                filePath = sourcePath + translationDicts.SkillSource + ".ini",
+                PKName = translationDicts.SkillSource      // 比如 "Column1"、"PKID"
+            });
+            columnItems.Add(new sourceFilePathItem
+            {//maptable
+                HeaderText = "maptable", // 比如 "列1"、"主键ID"
+                filePath = sourcePath + translationDicts.MapSource + ".ini",
+                PKName = translationDicts.MapSource      // 比如 "Column1"、"PKID"
+            });
+            columnItems.Add(new sourceFilePathItem
+            {//monstertable
+                HeaderText = "monstertable", // 比如 "列1"、"主键ID"
+                filePath = sourcePath + translationDicts.MonsterSource + ".ini",
+                PKName = translationDicts.MonsterSource      // 比如 "Column1"、"PKID"
+            });
+            columnItems.Add(new sourceFilePathItem
+            {//npctable
+                HeaderText = "npctable", // 比如 "列1"、"主键ID"
+                filePath = sourcePath + translationDicts.NPCSource + ".ini",
+                PKName = translationDicts.NPCSource      // 比如 "Column1"、"PKID"
+            });
+
+            string otherSourPath = sourcePath + translationDicts.otherSourcePath;
+            // 仅获取该文件夹下的 .ini 文件
+            string[] iniFiles = Directory.GetFiles(otherSourPath, "*.ini");
+
+            for (int i = 0; i < iniFiles.Length; i++)
+            {
+                string filePath = iniFiles[i];
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+                columnItems.Add(new sourceFilePathItem
+                {
+                    HeaderText = translationDicts.otherSource + fileName, // 比如 "列1"、"主键ID"
+                    filePath = fileName,
+                    PKName = translationDicts.otherSource + fileName
+                }) ;
+            }
+
+            // 3. 先解绑数据源，防止冲突
+            comboBox1.DataSource = null;
+            comboBox1.Items.Clear();
+
+            // 4. 绑定提取出的列对象组
+            comboBox1.DataSource = columnItems;
+            comboBox1.DisplayMember = "HeaderText"; // 让用户在下拉框里看到易懂的表头文字
+            comboBox1.ValueMember = "PKName";   // 后台隐藏实际的列名，方便后续写代码
+
+        }
+        private void 使用uistring源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            changeDicts(translationDicts.UistringSource);
         }
         private void translationCol()
         {
@@ -940,10 +1025,10 @@ namespace DntEditor_Hang.Forms
                 // this.dataGridView1.DataSource = null; 
 
                 // 3. 一行代码调用模块化翻译核心函数
-                int processedCount = translationDicts.TranslateColumnData(
+                int processedCount = dicts.TranslateColumnData(
                     _currentDocument,
                     sourceColumnName,
-                    translationDicts.translationDict
+                    dicts.translationDict
                 );
 
                 // 4. UI 刷新反馈
@@ -976,5 +1061,88 @@ namespace DntEditor_Hang.Forms
             translationCol();
         }
 
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            sourceFilePathItem item = (sourceFilePathItem)comboBox1.SelectedItem;
+            if (item==null)
+            {
+                return;
+            }
+            if (dicts==null)
+            {
+                dicts = new translationDicts();
+            }
+            string filePath = item.filePath;
+            dicts.translationDict = GlobalHelper.LoadIniTranslation(filePath);
+
+            titleStatusLabel.sourceFile = item.PKName;
+            this.Text = titleStatusLabel.toTitle();
+
+        }
+
+        private void changeDicts(string source)
+        {   /***
+            if (dicts == null)
+            {
+                dicts = new translationDicts();
+            }
+            string filePath = GlobalHelper.AppRootPath + translationDicts.SourcePath + source + ".ini";
+            dicts.translationDict = GlobalHelper.LoadIniTranslation(filePath);
+            if (dicts.translationDict == null)
+            {
+                MessageBox.Show($"切换{source}翻译源失败,请先创建翻译源文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }***/
+            titleStatusLabel.sourceFile = source;
+            this.Text = titleStatusLabel.toTitle();
+            comboBox1.SelectedValue = source;
+        }
+        private void 使用物品源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            changeDicts(translationDicts.ItemSource);
+        }
+
+        private void 使用技能源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            changeDicts(translationDicts.SkillSource);
+        }
+
+        private void 使用地图源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            changeDicts(translationDicts.MapSource);
+        }
+
+        private void 使用怪物源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            changeDicts(translationDicts.MonsterSource);
+        }
+
+        private void 使用npc源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            changeDicts(translationDicts.NPCSource);
+        }
+
+        private void 使用其他源ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string otherPath = GlobalHelper.AppRootPath + translationDicts.SourcePath + translationDicts.otherSourcePath;
+            string filePath = GlobalHelper.SelectFile("选择DNT文件", "DNT数据文件 (*.ini)", "*.ini", otherPath);
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                // 严谨校验：必须是 .dnt 后缀
+                if (Path.GetExtension(filePath).ToLower() == ".ini")
+                {
+                    loadCombobox1();
+                    string source = translationDicts.otherSource + Path.GetFileNameWithoutExtension(filePath);
+
+                    titleStatusLabel.sourceFile = source;
+                    this.Text = titleStatusLabel.toTitle();
+                    comboBox1.SelectedValue = source;
+                }
+                else
+                {
+                    MessageBox.Show(this, "仅支持读取 .ini 格式的二进制文件！", "格式错误");
+                }
+            }
+        }
     }
 }

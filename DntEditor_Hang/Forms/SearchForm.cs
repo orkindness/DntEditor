@@ -64,7 +64,15 @@ namespace DntEditor_Hang.Forms
             }
 
             //6. 赋予查询文本框单元格内容
-            this.textBox1.Text = mainForm.dataGridView1.CurrentCell.Value.ToString();
+            if (mainForm.dataGridView1.CurrentCell!=null)
+            {
+                this.textBox1.Text = mainForm.dataGridView1.CurrentCell.Value.ToString();
+            }
+            else
+            {
+                this.textBox1.Text = "";
+            }
+           
         }
         private void SearchForm_Load(object sender, EventArgs e)
         {

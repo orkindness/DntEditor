@@ -15,6 +15,78 @@ namespace DntEditor_Hang.Helpers
         // 获取当前软件运行所在的绝对目录路径（末尾统一确保带有反斜杠 \）
         public static readonly string AppRootPath = AppDomain.CurrentDomain.BaseDirectory;
 
+        /// <summary>
+        /// 读取多个 INI 文件，将数据拼接合并后保存到新文件
+        /// </summary>
+        /// <param name="sourceFiles">要合并的源 INI 文件路径列表</param>
+        /// <param name="targetFile">合并后的目标保存路径</param>
+        public static void MergeIniFiles(List<string> sourceFiles, string targetFile)
+        {
+            // 内存数据库：Dictionary<节点名, Dictionary<键名, 键值>>
+            var mergedData = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+
+            // 1. 循环读取并解析每一个 INI 文件
+            foreach (string filePath in sourceFiles)
+            {
+                if (!File.Exists(filePath)) continue; // 跳过不存在的文件
+
+                string currentSection = ""; // 记录当前正在读取的节点名
+
+                // 逐行读取文件
+                foreach (string line in File.ReadLines(filePath, Encoding.UTF8))
+                {
+                    string trimmedLine = line.Trim();
+
+                    // 跳过空行和注释行（以 ; 或 # 开头的行）
+                    if (string.IsNullOrEmpty(trimmedLine) || trimmedLine.StartsWith(";") || trimmedLine.StartsWith("#"))
+                    {
+                        continue;
+                    }
+
+                    // 解析节点 [SectionName]
+                    if (trimmedLine.StartsWith("[") && trimmedLine.EndsWith("]"))
+                    {
+                        currentSection = trimmedLine.Substring(1, trimmedLine.Length - 2).Trim();
+
+                        if (!mergedData.ContainsKey(currentSection))
+                        {
+                            mergedData[currentSection] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                        }
+                        continue;
+                    }
+
+                    // 解析键值对 Key=Value
+                    int equalSignIndex = trimmedLine.IndexOf('=');
+                    if (equalSignIndex > 0 && !string.IsNullOrEmpty(currentSection))
+                    {
+                        string key = trimmedLine.Substring(0, equalSignIndex).Trim();
+                        string value = trimmedLine.Substring(equalSignIndex + 1).Trim();
+
+                        // 写入内存（如果键已存在，后面的文件内容会覆盖/更新前面的内容）
+                        mergedData[currentSection][key] = value;
+                    }
+                }
+            }
+
+            // 2. 将合并后的内存数据统一写入目标文件
+            using (StreamWriter writer = new StreamWriter(targetFile, false, Encoding.UTF8))
+            {
+                foreach (var section in mergedData)
+                {
+                    // 写入节点名
+                    writer.WriteLine($"[{section.Key}]");
+
+                    // 写入该节点下的所有键值对
+                    foreach (var kvp in section.Value)
+                    {
+                        writer.WriteLine($"{kvp.Key}={kvp.Value}");
+                    }
+
+                    // 节点之间空一行，保持排版美观
+                    writer.WriteLine();
+                }
+            }
+        }
 
         /// <summary>
         /// 加载ini文件转字典类型
@@ -29,7 +101,8 @@ namespace DntEditor_Hang.Helpers
             // 2. 安全检查
             if (!File.Exists(iniFilePath))
             {
-                throw new FileNotFoundException($"找不到指定的 INI 翻译文件: {iniFilePath}");
+                //throw new FileNotFoundException($"找不到指定的 INI 翻译文件: {iniFilePath}");
+                return null;
             }
 
             // 3. 采用 UTF-8 编码逐行读取，防止大文件一次性读入导致内存卡顿
@@ -84,7 +157,7 @@ namespace DntEditor_Hang.Helpers
             // 1. 安全检查
             if (!File.Exists(xmlFilePath))
             {
-                throw new FileNotFoundException($"找不到源 XML 文件: {xmlFilePath}");
+                //throw new FileNotFoundException($"找不到源 XML 文件: {xmlFilePath}");
                 return false;
             }
 

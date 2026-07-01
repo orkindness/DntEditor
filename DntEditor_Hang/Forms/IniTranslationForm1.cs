@@ -14,10 +14,11 @@ namespace DntEditor_Hang.Forms
 {
     public partial class IniTranslationForm1 : Form
     {
-        public IniTranslationForm1()
+        private translationDicts dicts;
+        public IniTranslationForm1(translationDicts translation)
         {
             InitializeComponent();
-
+            dicts = translation;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.ControlBox = true;
@@ -72,6 +73,7 @@ namespace DntEditor_Hang.Forms
             if (!GlobalHelper.ConvertXmlToIni(textBox2.Text, GlobalHelper.AppRootPath + translationDicts.SourcePath+ translationDicts.UistringSource+".ini"))
             {
                 MessageBox.Show(this, "创建失败", "错误");
+                return;
             }
             // 可以配合 FolderBrowserDialog 让用户选，这里直接用假定路径演示///public const string SourcePath = "\\database\\";
         ///public const string UistringSource = "uistring.ini";
@@ -109,10 +111,10 @@ namespace DntEditor_Hang.Forms
                 }
                 // 一行代码，开启全自动化翻译、碰撞、分组、去重合并合并与导出流水线
                 // 传入当前包含 FormatGameText 的类实例（比如你项目中的 translationDicts 实例）
-                DntBatchTranslator.ExecuteBatchTranslation(dntFolderPath, uistringPath, Checks);
+                DntBatchTranslator.ExecuteBatchTranslation(dntFolderPath, uistringPath, Checks, dicts);
 
                 Cursor.Current = Cursors.Default;
-                MessageBox.Show("全自动化同类型批量翻译完成！.ini 文件已成功生成在对应目录下。", "批量成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("全自动化同类型批量翻译完成！.ini 文件已成功生成在["+GlobalHelper.AppRootPath+translationDicts.SourcePath+"]目录下。", "批量成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {

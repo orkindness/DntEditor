@@ -21,13 +21,15 @@ public static class DntBatchTranslator
     /// </summary>
     /// <param name="folderPath">存放 .dnt 文件的文件夹路径</param>
     /// <param name="uistringIniPath">uistring.ini 翻译源文件的路径</param>
-    public static void ExecuteBatchTranslation(string folderPath, string uistringIniPath,List<string> groupList)
+    public static void ExecuteBatchTranslation(string folderPath, string uistringIniPath,List<string> groupList, translationDicts dicts)
     {
         // 1. 防御性检查
         if (!Directory.Exists(folderPath))
-            throw new DirectoryNotFoundException($"找不到DNT文件夹路径: {folderPath}");
+            //throw new DirectoryNotFoundException($"找不到DNT文件夹路径: {folderPath}");
+            
+            return;
         if (!File.Exists(uistringIniPath))
-            throw new FileNotFoundException($"找不到翻译源文件: {uistringIniPath}");
+            return;
 
         // 2. 自动加载 uistring.ini 翻译字典
         // 此处调用你之前编写的加载函数（假设已将其封装，此处直接提取逻辑或直接调用）
@@ -86,12 +88,12 @@ public static class DntBatchTranslator
                     // C. 调用你上一步优化好的模块化函数进行数据碰撞翻译
                     // 这一步会把最终拼装好的文本填入到 doc.Columns["ChineseTranslation"] 中
 
-                    int processedRows = translationDicts.TranslateColumnData(doc, TargetIdColumn, translationDict);
+                    int processedRows = dicts.TranslateColumnData(doc, TargetIdColumn, translationDict);
 
                     // 如果由于该文件没有 _NameID 列导致处理失败(-1)，则跳过此文件
                     if (processedRows < 0)
                     {
-                        processedRows = translationDicts.TranslateColumnData(doc, MapTargetIdColumn, translationDict);
+                        processedRows = dicts.TranslateColumnData(doc, MapTargetIdColumn, translationDict);
                     }
                     if (processedRows < 0) continue;
                     // D. 提取 PKID 和 ChineseTranslation 结果并入组字典
@@ -130,11 +132,15 @@ public static class DntBatchTranslator
     /// <summary>
     /// 内部保底方法：高性能将合并后的键值对存入指定 INI
     /// </summary>
-    private static void WriteMergedDictToIni(string targetIniPath, Dictionary<string, string> dict)
+    public static void WriteMergedDictToIni(string targetIniPath, Dictionary<string, string> dict)
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine(IniSectionHeader);
-
+        string fpath = Path.GetDirectoryName(targetIniPath);
+        if (!string.IsNullOrEmpty(fpath) && !Directory.Exists(fpath))
+        {
+            Directory.CreateDirectory(fpath);
+        }
         foreach (var kvp in dict)
         {
             // 防御：若翻译结果包含换行符，转换为 \n 转义，防止破坏 INI 结构

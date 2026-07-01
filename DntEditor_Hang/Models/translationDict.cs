@@ -14,14 +14,17 @@ namespace DntEditor_Hang.Models
         public const string TargetColumnKey = "ChineseTranslation";
 
         public const string SourcePath = "\\database\\";
-        public const string UistringSource = "uistring";
+        public const string otherSourcePath = "other_db\\";
 
+        public const string UistringSource = "uistring";
         public const string MapSource = "maptable";
         public const string MonsterSource = "monstertable";
         public const string NPCSource = "npctable";
         public const string ItemSource = "itemtable";
         public const string SkillSource = "skilltable";
-        public static Dictionary<string, string> translationDict;
+
+        public const string otherSource = "o_db:";
+        public  Dictionary<string, string> translationDict;
 
         /// <summary>
         /// 智能解析游戏参数化文本，支持大括号嵌套再翻译
@@ -30,7 +33,7 @@ namespace DntEditor_Hang.Models
         /// <param name="paramChain">原始参数链，例如: "24,{1000029331},{1000015539}"</param>
         /// <param name="transDict">翻译字典</param>
         /// <returns>最终渲染后的完整中文文本</returns>
-        public static string FormatGameText(string templateText, string paramChain, Dictionary<string, string> transDict)
+        private  string FormatGameText(string templateText, string paramChain, Dictionary<string, string> transDict)
         {
             // 防御 1：如果母本为空，直接返回空
             if (string.IsNullOrEmpty(templateText)) return string.Empty;
@@ -93,7 +96,7 @@ namespace DntEditor_Hang.Models
         /// <param name="transDict">翻译字典</param>
         /// <param name="formatProvider">提供 FormatGameText 格式化逻辑的对象或实例</param>
         /// <returns>返回实际处理成功的总行数。若出错则返回 -1</returns>
-        public static int TranslateColumnData(DntDocument document, string sourceColumnName, Dictionary<string, string> transDict)
+        public int TranslateColumnData(DntDocument document, string sourceColumnName, Dictionary<string, string> transDict)
         {
             // 1. 【强防御性检查】前置核心对象非空校验
             if (document?.Columns == null || transDict == null || string.IsNullOrEmpty(sourceColumnName)) return -1;
@@ -148,5 +151,11 @@ namespace DntEditor_Hang.Models
                 throw;
             }
         }
+    }
+    public class sourceFilePathItem
+    {
+        public string HeaderText { get; set; } // 界面上显示给用户看的文件名（如：唯一标识）
+        public string filePath { get; set; } // 文件路径
+        public string PKName {  get; set; }// 代码里实际调用的文件路径（如：PKID）
     }
 }

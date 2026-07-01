@@ -87,9 +87,9 @@ namespace DntEditor_Hang.Forms
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -330,36 +330,42 @@ namespace DntEditor_Hang.Forms
             this.使用物品源ToolStripMenuItem.Name = "使用物品源ToolStripMenuItem";
             this.使用物品源ToolStripMenuItem.Size = new System.Drawing.Size(295, 34);
             this.使用物品源ToolStripMenuItem.Text = "使 用 物 品 源  (ctrl+2)";
+            this.使用物品源ToolStripMenuItem.Click += new System.EventHandler(this.使用物品源ToolStripMenuItem_Click);
             // 
             // 使用技能源ToolStripMenuItem
             // 
             this.使用技能源ToolStripMenuItem.Name = "使用技能源ToolStripMenuItem";
             this.使用技能源ToolStripMenuItem.Size = new System.Drawing.Size(295, 34);
             this.使用技能源ToolStripMenuItem.Text = "使 用 技 能 源  (ctrl+3)";
+            this.使用技能源ToolStripMenuItem.Click += new System.EventHandler(this.使用技能源ToolStripMenuItem_Click);
             // 
             // 使用地图源ToolStripMenuItem
             // 
             this.使用地图源ToolStripMenuItem.Name = "使用地图源ToolStripMenuItem";
             this.使用地图源ToolStripMenuItem.Size = new System.Drawing.Size(295, 34);
             this.使用地图源ToolStripMenuItem.Text = "使 用 地 图 源  (ctrl+4)";
+            this.使用地图源ToolStripMenuItem.Click += new System.EventHandler(this.使用地图源ToolStripMenuItem_Click);
             // 
             // 使用怪物源ToolStripMenuItem
             // 
             this.使用怪物源ToolStripMenuItem.Name = "使用怪物源ToolStripMenuItem";
             this.使用怪物源ToolStripMenuItem.Size = new System.Drawing.Size(295, 34);
             this.使用怪物源ToolStripMenuItem.Text = "使 用 怪 物 源  (ctrl+5)";
+            this.使用怪物源ToolStripMenuItem.Click += new System.EventHandler(this.使用怪物源ToolStripMenuItem_Click);
             // 
             // 使用npc源ToolStripMenuItem
             // 
             this.使用npc源ToolStripMenuItem.Name = "使用npc源ToolStripMenuItem";
             this.使用npc源ToolStripMenuItem.Size = new System.Drawing.Size(295, 34);
             this.使用npc源ToolStripMenuItem.Text = "使 用  npc  源  (ctrl+6)";
+            this.使用npc源ToolStripMenuItem.Click += new System.EventHandler(this.使用npc源ToolStripMenuItem_Click);
             // 
             // 使用其他源ToolStripMenuItem
             // 
             this.使用其他源ToolStripMenuItem.Name = "使用其他源ToolStripMenuItem";
             this.使用其他源ToolStripMenuItem.Size = new System.Drawing.Size(295, 34);
             this.使用其他源ToolStripMenuItem.Text = "使 用 其 他 源  (ctrl+7)";
+            this.使用其他源ToolStripMenuItem.Click += new System.EventHandler(this.使用其他源ToolStripMenuItem_Click);
             // 
             // 关联ToolStripMenuItem
             // 
@@ -372,7 +378,7 @@ namespace DntEditor_Hang.Forms
             // dNT目录批量检索ToolStripMenuItem
             // 
             this.dNT目录批量检索ToolStripMenuItem.Name = "dNT目录批量检索ToolStripMenuItem";
-            this.dNT目录批量检索ToolStripMenuItem.Size = new System.Drawing.Size(257, 34);
+            this.dNT目录批量检索ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.dNT目录批量检索ToolStripMenuItem.Text = "DNT目录批量检索";
             this.dNT目录批量检索ToolStripMenuItem.Click += new System.EventHandler(this.dNT目录批量检索ToolStripMenuItem_Click);
             // 
@@ -526,13 +532,13 @@ namespace DntEditor_Hang.Forms
             // 
             this.panel2.AutoScroll = true;
             this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.panel2.Controls.Add(this.checkBox3);
             this.panel2.Controls.Add(this.button4);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.comboBox1);
             this.panel2.Controls.Add(this.checkBox2);
             this.panel2.Controls.Add(this.button3);
             this.panel2.Controls.Add(this.textBox1);
-            this.panel2.Controls.Add(this.button2);
             this.panel2.Controls.Add(this.button1);
             this.panel2.Controls.Add(this.checkBox1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -566,6 +572,7 @@ namespace DntEditor_Hang.Forms
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(227, 26);
             this.comboBox1.TabIndex = 6;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // checkBox2
             // 
@@ -595,15 +602,6 @@ namespace DntEditor_Hang.Forms
             this.textBox1.TabIndex = 2;
             this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(333, 7);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(176, 36);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "单元格翻译(F2)";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(126, 7);
@@ -624,6 +622,16 @@ namespace DntEditor_Hang.Forms
             this.checkBox1.Text = "ctrl+s同时保存至(明文/密文)目录";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(349, 15);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(160, 22);
+            this.checkBox3.TabIndex = 9;
+            this.checkBox3.Text = "单元格翻译(F2)";
+            this.checkBox3.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -679,7 +687,6 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ToolStripMenuItem 数据库ToolStripMenuItem;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ToolStripMenuItem 保存ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 设置目录配置ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 批量加密解密ToolStripMenuItem;
@@ -717,5 +724,6 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.ToolStripMenuItem 选择文件ToolStripMenuItem;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox checkBox3;
     }
 }
