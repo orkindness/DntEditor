@@ -29,6 +29,7 @@ namespace DntEditor_Hang.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -81,6 +82,7 @@ namespace DntEditor_Hang.Forms
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.button4 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -89,7 +91,7 @@ namespace DntEditor_Hang.Forms
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -131,7 +133,7 @@ namespace DntEditor_Hang.Forms
             this.dNT加解密ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1523, 32);
+            this.menuStrip1.Size = new System.Drawing.Size(1523, 36);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -378,7 +380,7 @@ namespace DntEditor_Hang.Forms
             // dNT目录批量检索ToolStripMenuItem
             // 
             this.dNT目录批量检索ToolStripMenuItem.Name = "dNT目录批量检索ToolStripMenuItem";
-            this.dNT目录批量检索ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.dNT目录批量检索ToolStripMenuItem.Size = new System.Drawing.Size(257, 34);
             this.dNT目录批量检索ToolStripMenuItem.Text = "DNT目录批量检索";
             this.dNT目录批量检索ToolStripMenuItem.Click += new System.EventHandler(this.dNT目录批量检索ToolStripMenuItem_Click);
             // 
@@ -435,9 +437,9 @@ namespace DntEditor_Hang.Forms
             this.panel1.Controls.Add(this.splitter2);
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 32);
+            this.panel1.Location = new System.Drawing.Point(0, 36);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1523, 1026);
+            this.panel1.Size = new System.Drawing.Size(1523, 1022);
             this.panel1.TabIndex = 2;
             // 
             // panel4
@@ -448,7 +450,7 @@ namespace DntEditor_Hang.Forms
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(494, 136);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(1029, 890);
+            this.panel4.Size = new System.Drawing.Size(1029, 886);
             this.panel4.TabIndex = 3;
             // 
             // label3
@@ -483,7 +485,7 @@ namespace DntEditor_Hang.Forms
             this.dataGridView1.RowHeadersWidth = 62;
             this.dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dataGridView1.RowTemplate.Height = 35;
-            this.dataGridView1.Size = new System.Drawing.Size(1029, 890);
+            this.dataGridView1.Size = new System.Drawing.Size(1029, 886);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.VirtualMode = true;
             this.dataGridView1.Visible = false;
@@ -493,7 +495,7 @@ namespace DntEditor_Hang.Forms
             // 
             this.splitter1.Location = new System.Drawing.Point(491, 136);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 890);
+            this.splitter1.Size = new System.Drawing.Size(3, 886);
             this.splitter1.TabIndex = 2;
             this.splitter1.TabStop = false;
             // 
@@ -503,7 +505,7 @@ namespace DntEditor_Hang.Forms
             this.panel3.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel3.Location = new System.Drawing.Point(0, 136);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(491, 890);
+            this.panel3.Size = new System.Drawing.Size(491, 886);
             this.panel3.TabIndex = 1;
             this.panel3.Visible = false;
             // 
@@ -515,7 +517,7 @@ namespace DntEditor_Hang.Forms
             this.dataGridView2.Name = "dataGridView2";
             this.dataGridView2.RowHeadersWidth = 30;
             this.dataGridView2.RowTemplate.Height = 30;
-            this.dataGridView2.Size = new System.Drawing.Size(491, 890);
+            this.dataGridView2.Size = new System.Drawing.Size(491, 886);
             this.dataGridView2.TabIndex = 0;
             this.dataGridView2.VirtualMode = true;
             // 
@@ -547,6 +549,16 @@ namespace DntEditor_Hang.Forms
             this.panel2.Size = new System.Drawing.Size(1523, 133);
             this.panel2.TabIndex = 0;
             // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(349, 15);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(160, 22);
+            this.checkBox3.TabIndex = 9;
+            this.checkBox3.Text = "单元格翻译(F2)";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            // 
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(126, 52);
@@ -555,6 +567,7 @@ namespace DntEditor_Hang.Forms
             this.button4.TabIndex = 8;
             this.button4.Text = "翻译覆盖所选列(F3)";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // label1
             // 
@@ -567,6 +580,7 @@ namespace DntEditor_Hang.Forms
             // 
             // comboBox1
             // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(614, 58);
             this.comboBox1.Name = "comboBox1";
@@ -583,6 +597,7 @@ namespace DntEditor_Hang.Forms
             this.checkBox2.TabIndex = 5;
             this.checkBox2.Text = "翻译标题行(F4)";
             this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
             // 
             // button3
             // 
@@ -622,16 +637,6 @@ namespace DntEditor_Hang.Forms
             this.checkBox1.Text = "ctrl+s同时保存至(明文/密文)目录";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
-            // checkBox3
-            // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(349, 15);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(160, 22);
-            this.checkBox3.TabIndex = 9;
-            this.checkBox3.Text = "单元格翻译(F2)";
-            this.checkBox3.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -725,5 +730,6 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox checkBox3;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

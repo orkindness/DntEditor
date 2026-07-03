@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,12 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DntEditor_Hang.Helpers;
 
 namespace DntEditor_Hang.Forms
 {
     public partial class SearchForm : Form
     {
         private MainForm mainForm;
+        private string searchAll = "searchAll";
         public SearchForm(MainForm mForm)
         {
             InitializeComponent();
@@ -28,7 +31,11 @@ namespace DntEditor_Hang.Forms
         {
             // 1.创建一个列表用于存放列对象
             List<ColumnItem> columnItems = new List<ColumnItem>();
-
+            columnItems.Add(new ColumnItem
+            {
+                HeaderText = "全文检索",
+                ColumnName = searchAll       // 比如 "Column1"、"PKID"
+            });
             // 2. 遍历 DataGridView 的所有列
             foreach (DataGridViewColumn col in mainForm.dataGridView1.Columns)
             {
@@ -93,7 +100,108 @@ namespace DntEditor_Hang.Forms
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            string targetColumnName = comboBox1.SelectedValue.ToString();
+            try
+            {
+                int rowIndex = 0;
+                if (mainForm._currentDocument == null)
+                {
+                    MessageBox.Show("没有加载DNT文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                if (mainForm.dataGridView1.CurrentCell != null)
+                {
+                    rowIndex = mainForm.dataGridView1.CurrentCell.RowIndex;
+                }
+                string targetColumnName = comboBox1.SelectedValue.ToString();
+                int colIndex = comboBox1.SelectedIndex - 1;
+                string searchText = this.textBox1.Text;
+                if (targetColumnName == searchAll)
+                {
+                    if (mainForm.dataGridView1.CurrentCell != null)
+                    {
+                        colIndex = mainForm.dataGridView1.CurrentCell.ColumnIndex;
+                    }
+                    else
+                    {
+                        colIndex = 0;
+                    }
+                    List<string> keys = new List<string>();
+                    foreach (var item in mainForm._currentDocument.Columns.Keys)
+                    {
+                        keys.Add(item);
+                    }
+                    for (int j = colIndex; j < keys.Count; j=(j+1)% keys.Count)
+                    {
+                        IList list = mainForm._currentDocument.Columns[keys[j]];
+                        for (int i = rowIndex+1; i < list.Count; i++)
+                        {
+                            if (checkBox1.Checked && list[i].ToString() == searchText)
+                            {
+                                mainForm.dataGridView1.CurrentCell = mainForm.dataGridView1.Rows[i].Cells[colIndex];
+                                return;
+                            }
+                            else if (!checkBox1.Checked && list[i].ToString().Contains(searchText))
+                            {
+                                mainForm.dataGridView1.CurrentCell = mainForm.dataGridView1.Rows[i].Cells[colIndex];
+                                return;
+                            }
+                        }
+                        rowIndex = -1;
+                        colIndex= (colIndex + 1) % keys.Count;
+                    }
+                    foreach (var item in mainForm._currentDocument.Columns.Values)
+                    {
+                       
+                    }
+
+                }
+                else
+                {
+
+                    var list = mainForm._currentDocument.Columns[targetColumnName];
+                    int result = findNest(list, rowIndex, searchText);
+                    if (result == -1)
+                    {
+                        return;
+                    }
+                    mainForm.dataGridView1.CurrentCell = mainForm.dataGridView1.Rows[result].Cells[colIndex];
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show($"查询错误:{ex.Message}", "崩溃防御", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
+        }
+        private int findNest(IList list,int rowIndex,string searchText)
+        {
+            // 1. 防御性检查
+            if (list == null || rowIndex < 0 || string.IsNullOrEmpty(searchText)) return -1;
+            if (rowIndex >= list.Count) return -1;
+
+            for (int i = rowIndex + 1; i < list.Count; i++)
+            {
+                if (checkBox1.Checked && list[i].ToString() == searchText)
+                {
+                    return i;
+                }
+                else if (!checkBox1.Checked && list[i].ToString().Contains(searchText))
+                {
+                    return i;
+                }
+
+            }
+            for (int i = 0; i < rowIndex; i++)
+            {
+                if (checkBox1.Checked && list[i].ToString() == searchText)
+                {
+                    return i;
+                }
+                else if (!checkBox1.Checked && list[i].ToString().Contains(searchText))
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
     }
     public class ColumnItem

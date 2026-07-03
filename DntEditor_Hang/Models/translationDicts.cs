@@ -13,6 +13,9 @@ namespace DntEditor_Hang.Models
         public const string ParamSuffix = "Param";
         public const string TargetColumnKey = "ChineseTranslation";
 
+        public const string dntTransFileName = "dnt翻译.ini";
+        public const string dntHeadTransFileName = "dnt表头翻译.ini";
+
         public const string SourcePath = "\\database\\";
         public const string otherSourcePath = "other_db\\";
 
@@ -97,7 +100,7 @@ namespace DntEditor_Hang.Models
         /// <param name="formatProvider">提供 FormatGameText 格式化逻辑的对象或实例</param>
         /// <returns>返回实际处理成功的总行数。若出错则返回 -1</returns>
         public int TranslateColumnData(DntDocument document, string sourceColumnName, Dictionary<string, string> transDict)
-        {
+        { 
             // 1. 【强防御性检查】前置核心对象非空校验
             if (document?.Columns == null || transDict == null || string.IsNullOrEmpty(sourceColumnName)) return -1;
 
@@ -113,43 +116,84 @@ namespace DntEditor_Hang.Models
 
             try
             {
-                // 5. 核心处理前先清空旧的翻译数据
-                chineseTranslationList.Clear();
-
-                // 6. 执行批量碰撞
-                for (int i = 0; i < sourceColumnList.Count; i++)
-                {
-                    object cellValue = sourceColumnList[i];
-                    string nameIdKey = cellValue?.ToString()?.Trim() ?? string.Empty;
-
-                    // 去字典里抓取母本模板（例如 "{0}级普通{1} {2}"）
-                    if (!string.IsNullOrEmpty(nameIdKey) && transDict.TryGetValue(nameIdKey, out string templateText))
-                    {
-                        // 安全提取当前行的参数链（例如 "24,{1000029331}"）
-                        string paramChain = string.Empty;
-                        if (paramColumnList != null && i < paramColumnList.Count)
-                        {
-                            paramChain = paramColumnList[i]?.ToString() ?? string.Empty;
-                        }
-
-                        // 调用外部传入的智能格式化方法进行多层嵌套替换
-                        string finalResultText = FormatGameText(templateText, paramChain, transDict);
-                        chineseTranslationList.Add(finalResultText);
-                    }
-                    else
-                    {
-                        // 防御：字典未命中时填空，确保总行数不错位
-                        chineseTranslationList.Add(string.Empty);
-                    }
-                }
-
-                return sourceColumnList.Count; // 返回处理成功的总行数
+                // 5. 直接调用拆分出来的、可复用的核心翻译方法
+                return ProcessTranslationList(sourceColumnList, paramColumnList, transDict, chineseTranslationList);
             }
             catch (Exception)
             {
                 // 模块化函数内部不建议直接弹出 MessageBox 破坏架构，此处选择向上抛出或记录日志
                 throw;
             }
+        }
+        public int OverTranslateColumnData(DntDocument document, string sourceColumnName, Dictionary<string, string> transDict,ColumTranslationItem CTItem)
+        {
+            // 1. 【强防御性检查】前置核心对象非空校验
+            if (document?.Columns == null || transDict == null || string.IsNullOrEmpty(sourceColumnName)) return -1;
+
+            // 2. 【强防御性检查】确保目标“ChineseTranslation”列已在字典中初始化
+            //if (!document.Columns.TryGetValue(TargetColumnKey, out IList chineseTranslationList) || chineseTranslationList == null) return -1;
+            if (CTItem.TranslatedTextList==null) return -1;
+
+            // 3. 【强防御性检查】确保被翻译的源 ID 列存在
+            if (!document.Columns.TryGetValue(sourceColumnName, out IList sourceColumnList) || sourceColumnList == null) return -1;
+
+            // 4. 安全获取与之配套的参数列（例如 "_NameIDParam"）
+            string paramColumnKey = sourceColumnName + ParamSuffix;
+            document.Columns.TryGetValue(paramColumnKey, out IList paramColumnList);
+
+            try
+            {
+                // 5. 直接调用拆分出来的、可复用的核心翻译方法
+                return ProcessTranslationList(sourceColumnList, paramColumnList, transDict, CTItem.TranslatedTextList);
+            }
+            catch (Exception)
+            {
+                // 模块化函数内部不建议直接弹出 MessageBox 破坏架构，此处选择向上抛出或记录日志
+                throw;
+            }
+        }
+        /// <summary>
+        /// 【可复用核心】将源数据列表与参数列表，通过字典批量翻译并注入到目标列表中
+        /// </summary>
+        /// <param name="sourceList">源文本/ID列表</param>
+        /// <param name="paramList">配套的参数链列表（可为 null）</param>
+        /// <param name="transDict">翻译字典</param>
+        /// <param name="targetList">接收翻译结果的目标列表</param>
+        /// <returns>处理成功的总行数</returns>
+        public int ProcessTranslationList(IList sourceList, IList paramList, Dictionary<string, string> transDict, IList targetList)
+        {
+            // 前置强防御性检查
+            if (sourceList == null || transDict == null || targetList == null) return 0;
+
+            targetList.Clear();
+
+            for (int i = 0; i < sourceList.Count; i++)
+            {
+                object cellValue = sourceList[i];
+                string nameIdKey = cellValue?.ToString()?.Trim() ?? string.Empty;
+
+                // 1. 字典碰撞
+                if (!string.IsNullOrEmpty(nameIdKey) && transDict.TryGetValue(nameIdKey, out string templateText))
+                {
+                    // 2. 安全提取当前行的参数链
+                    string paramChain = string.Empty;
+                    if (paramList != null && i < paramList.Count)
+                    {
+                        paramChain = paramList[i]?.ToString() ?? string.Empty;
+                    }
+
+                    // 3. 智能格式化替换
+                    string finalResultText = FormatGameText(templateText, paramChain, transDict);
+                    targetList.Add(finalResultText);
+                }
+                else
+                {
+                    // 防御：字典未命中时填空，确保总行数不错位
+                    targetList.Add(string.Empty);
+                }
+            }
+
+            return sourceList.Count;
         }
     }
     public class sourceFilePathItem

@@ -26,8 +26,10 @@ namespace DntEditor_Hang.Forms
 
         public string _currentLoadedFilePath = string.Empty; // 记录当前打开的文件路径
         public string _currentLoadedFileName = string.Empty;// 记录当前打开的文件名
-        private DntDocument _currentDocument = null;          // 记录当前打开的文档对象
+        public DntDocument _currentDocument = null;          // 记录当前打开的文档对象
         private translationDicts dicts = null;  //翻译字典
+        private Dictionary<string,string> headDicts = null;  //翻译表头字典
+        private Dictionary<string, ColumTranslationItem> colTranDict = null;//存放列翻译内容
         public MainForm()
         {
             InitializeComponent();
@@ -49,10 +51,14 @@ namespace DntEditor_Hang.Forms
             this.dataGridView1.CellFormatting += dataGridView1_CellFormatting;
             this.dataGridView1.ColumnHeaderMouseClick += dataGridView1_ColumnHeaderMouseClick;
             this.dataGridView1.CellClick += dataGridView1_CellClick;
+            this.dataGridView1.EditingControlShowing += dataGridView1_EditingControlShowing;
+            this.dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
+            this.dataGridView1.CellValueChanged += DataGridView1_CellValueChanged;
 
             this.textBox1.KeyPress += textBox1_KeyPress;
             this.textBox1.TextChanged += textBox1_TextChanged;
         }
+
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
@@ -70,6 +76,36 @@ namespace DntEditor_Hang.Forms
             statusLabel.rowIndex = e.RowIndex+1;
             statusLabel.columIndex = e.ColumnIndex;
             this.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
+
+            // 防御：排除表头
+            if (e.RowIndex < 0 || e.ColumnIndex < 1) return;
+            if (!checkBox3.Checked) return;
+
+            string nameIdKey = null;
+            if (e.ColumnIndex==1)
+            {
+                nameIdKey = _currentDocument.Columns["PKID"][e.RowIndex]?.ToString()?.Trim() ?? string.Empty;
+            }
+            else
+            {
+                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex - 1);
+                nameIdKey = _currentDocument.Columns[fieldInfo.FieldName][e.RowIndex]?.ToString()?.Trim() ?? string.Empty;
+            }
+            
+            dicts.translationDict.TryGetValue(nameIdKey, out string templateText);
+
+            // 1. 获取屏幕物理坐标
+            Point mouseScreenPos = Control.MousePosition;
+
+            // 2. 直接转为主窗口相对坐标（系统会自动处理 150% 缩放）
+            Point formRelativePos = this.PointToClient(mouseScreenPos);
+
+            // 3. ⚠️ 拒绝任何手动除以 1.5 或乘以 1.5 的计算！直接加上偏移量即可
+            int finalX = formRelativePos.X;
+            int finalY = formRelativePos.Y + 80; // 鼠标下方 20 像素
+
+            // 4. 宿主必须是 this
+            toolTip1.Show((templateText??"无"), this, finalX, finalY, 3000);
         }
 
         private void dataGridView2_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -119,6 +155,13 @@ namespace DntEditor_Hang.Forms
                 // 核心读取
                 _currentDocument = DntConvertHelpers.LoadFromFile(filePath);
 
+                colTranDict = new Dictionary<string, ColumTranslationItem>();
+                //初始化colTranDict列翻译存储列表
+                foreach (string colKey in _currentDocument.Columns.Keys)
+                {
+                    colTranDict.Add(colKey,new ColumTranslationItem());
+                }
+
                 // 2. 扔给虚拟化初始化方法，界面瞬间加载完毕！
                 InitVirtualDataGridView(_currentDocument);
                 UpdateRowHeaderWidth();
@@ -134,6 +177,7 @@ namespace DntEditor_Hang.Forms
 
                 titleStatusLabel.fileName = Path.GetFileName(filePath);
                 this.Text = titleStatusLabel.toTitle();
+                this.checkBox2.Checked = false;
             }
             catch (Exception ex)
             {
@@ -217,6 +261,7 @@ namespace DntEditor_Hang.Forms
             var pkidList = _currentDocument.Columns["PKID"] as List<uint>;
             if (pkidList == null || e.RowIndex >= pkidList.Count) return;
 
+            
             // 情况 A：第 0 列 —— 最左侧中文翻译列
             if (e.ColumnIndex == 0)
             {
@@ -228,25 +273,22 @@ namespace DntEditor_Hang.Forms
                 else
                 {
                     e.Value = transList[e.RowIndex];
+                    
                 }
-                
-                /***
-                string currentDntFileName = Path.GetFileName(_currentLoadedFilePath);
-                if (_translationDict != null && _translationDict.TryGetValue(currentDntFileName, out string chineseName))
-                {
-                    e.Value = chineseName;
-                }
-                else
-                {
-                    e.Value = "未关联翻译";
-                }
-                ***/
             }
             // 情况 B：第 1 列 —— PKID 主键列
             else if (e.ColumnIndex == 1)
             {
-                // 核心更改 2：直接去分布式字典里的 "PKID" 强类型列中取数
-                e.Value = pkidList[e.RowIndex];
+                var ColTransItem = colTranDict["PKID"] as ColumTranslationItem;
+                if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]))
+                {
+                    e.Value = "T:" + ColTransItem.TranslatedTextList[e.RowIndex];
+                }
+                else
+                {
+                    // 核心更改 2：直接去分布式字典里的 "PKID" 强类型列中取数
+                    e.Value = pkidList[e.RowIndex];
+                }
             }
             // 情况 C：第 2 列及往后 —— DNT 常规数据列
             else
@@ -256,8 +298,16 @@ namespace DntEditor_Hang.Forms
 
                 if (fieldInfo != null && _currentDocument.Columns.ContainsKey(fieldInfo.FieldName))
                 {
-                    // 列式取数：找到该列对应的 IList 列表，拿出它的第 RowIndex 行数据
-                    e.Value = _currentDocument.Columns[fieldInfo.FieldName][e.RowIndex];
+                    var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
+                    if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]))
+                    {
+                        e.Value = "T:" + ColTransItem.TranslatedTextList[e.RowIndex];
+                    }
+                    else
+                    {
+                        // 列式取数：找到该列对应的 IList 列表，拿出它的第 RowIndex 行数据
+                        e.Value = _currentDocument.Columns[fieldInfo.FieldName][e.RowIndex];
+                    }
                 }
             }
         }
@@ -270,7 +320,6 @@ namespace DntEditor_Hang.Forms
             var pkidList = _currentDocument.Columns["PKID"] as List<uint>;
             if (pkidList == null || e.RowIndex >= pkidList.Count) return;
 
-            // 核心更改 2：只有第 2 列及往后的数据列才允许修改（第0列翻译只读）
             if (e.ColumnIndex > 0)
             {
 
@@ -297,14 +346,14 @@ namespace DntEditor_Hang.Forms
                             break;
 
                         case DntFieldType.BooleanInt:
-                            var listBool = columnList as List<bool>;
+                            var listBool = columnList as List<int>;
                             if (listBool != null)
                             {
                                 // 兼容输入 true/false 或 1/0
-                                if (bool.TryParse(userInput, out bool bResult))
-                                    listBool[e.RowIndex] = bResult;
+                                if (userInput == "1" || userInput == "0")
+                                    listBool[e.RowIndex] = int.Parse(userInput);
                                 else
-                                    listBool[e.RowIndex] = (userInput == "1");
+                                    listBool[e.RowIndex] = int.Parse(userInput) > 0 ? 1 : 0;
                             }
                             break;
 
@@ -349,32 +398,128 @@ namespace DntEditor_Hang.Forms
             var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex-1);
             if (fieldInfo != null)
             {
+                var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
+                bool isTranslated = ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]);
+                Color baseColor = Color.White;
                 switch (fieldInfo.FieldType)
                 {
-                    case DntFieldType.Text:
-                        // 文本类型：浅黄色
-                        e.CellStyle.BackColor = Color.FromArgb(255, 253, 232);
+                    case DntFieldType.Text: // 文本类型：浅黄色
+                        // 原始浅黄 vs 翻译后极淡的麦芽黄
+                        baseColor = Color.FromArgb(255, 253, 232);
+                        //e.CellStyle.BackColor = isTranslated ? Color.FromArgb((255 + 190) / 2, (253 + 245) / 2, (232 + 235) / 2) : Color.FromArgb(255, 253, 232);
                         break;
+                    case DntFieldType.BooleanInt:// 布尔类型：浅绿色
+                        // 原始浅绿 vs 翻译后淡青灰
+                        baseColor = Color.FromArgb(230, 245, 230);
+                        //e.CellStyle.BackColor = isTranslated ? Color.FromArgb((255 + 190) / 2, (253 + 245) / 2, (232 + 235) / 2) : Color.FromArgb(230, 245, 230);
+                       break;
+                    case DntFieldType.Int32:// 整型类型：浅蓝色
+                        // 原始浅蓝 vs 翻译后淡蓝灰
+                        baseColor = Color.FromArgb(230, 240, 255);
+                        //e.CellStyle.BackColor = isTranslated ? Color.FromArgb((255 + 190) / 2, (253 + 245) / 2, (232 + 235) / 2) : Color.FromArgb(230, 240, 255);
+                        break;
+                    case DntFieldType.Percentage: // 百分比类型：浅橙色
+                        // 原始浅橙 vs 翻译后粉灰
+                        baseColor = Color.FromArgb(255, 240, 230);
+                        //e.CellStyle.BackColor = isTranslated ? Color.FromArgb((255 + 190) / 2, (253 + 245) / 2, (232 + 235) / 2) : Color.FromArgb(255, 240, 230);
+                        break;
+                    case DntFieldType.Float:// 浮点数类型：浅紫色
+                        // 原始浅紫 vs 翻译后淡紫灰
+                        baseColor = Color.FromArgb(245, 235, 255);
+                        //e.CellStyle.BackColor = isTranslated ? Color.FromArgb((255 + 190) / 2, (253 + 245) / 2, (232 + 235) / 2) : Color.FromArgb(245, 235, 255);
+                        break;
+                }
+                if (isTranslated)
+                {
+                    // 🔥 【魔法混色】将原色与一种明亮的青绿色(190, 245, 235)进行线性混合（各占50%）
+                    // 这样既保留了数据类型的色调，又打上了“已翻译”的冷色高亮标签
+                    e.CellStyle.BackColor = Color.FromArgb(
+                        (baseColor.R + 190) / 2,
+                        (baseColor.G + 245) / 2,
+                        (baseColor.B + 235) / 2
+                    );
+                }
+                else
+                {
+                    // 未翻译，保持原色
+                    e.CellStyle.BackColor = baseColor;
+                }
 
-                    case DntFieldType.BooleanInt:
-                        // 布尔类型：浅绿色
-                        e.CellStyle.BackColor = Color.FromArgb(230, 245, 230);
-                        break;
+            }
+        }
 
-                    case DntFieldType.Int32:
-                        // 整型类型：浅蓝色
-                        e.CellStyle.BackColor = Color.FromArgb(230, 240, 255);
-                        break;
+        private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex==0)
+            {
 
-                    case DntFieldType.Percentage:
-                        // 百分比类型：浅橙色
-                        e.CellStyle.BackColor = Color.FromArgb(255, 240, 230);
-                        break;
+            }
+            else if (e.ColumnIndex==1)
+            {
+                var ColTransItem = colTranDict["PKID"] as ColumTranslationItem;
+                if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]))
+                {
+                    ColTransItem.TranslatedTextList[e.RowIndex] = "";
+                }
+            }
+            else
+            {
+                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex - 1);
+                if (fieldInfo != null && _currentDocument.Columns.ContainsKey(fieldInfo.FieldName))
+                {
+                    var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
+                    if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]))
+                    {
+                        ColTransItem.TranslatedTextList[e.RowIndex] = "";
+                    }
+                }
+            }
+        }
+        private void DataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            // 编辑结束后，刷新当前行，这会强制触发 CellValueNeeded，让界面变回 [翻译后文本]
+            dataGridView1.InvalidateRow(e.RowIndex);
+        }
+        private void dataGridView1_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            int colIndex = dataGridView1.CurrentCell.ColumnIndex;
+            int rowIndex = dataGridView1.CurrentCell.RowIndex;
 
-                    case DntFieldType.Float:
-                        // 浮点数类型：浅紫色
-                        e.CellStyle.BackColor = Color.FromArgb(245, 235, 255);
-                        break;
+            // 确保当前正在编辑的控件是文本框
+            if (e.Control is TextBox textBox)
+            {
+                string rawValue = null;
+
+                if (colIndex == 0)
+                {
+                    // 第 0 列的原始数据逻辑（如果有）
+                }
+                else if (colIndex == 1)
+                {
+                    var transList = _currentDocument.Columns["PKID"] as List<string>;
+                    var ColTransItem = colTranDict["PKID"] as ColumTranslationItem;
+                    if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[rowIndex]))
+                    {
+                        rawValue = transList[rowIndex];
+                    }
+                }
+                else
+                {
+                    var fieldInfo = _currentDocument.GetFieldAt(colIndex - 1);
+                    if (fieldInfo != null && _currentDocument.Columns.ContainsKey(fieldInfo.FieldName))
+                    {
+                        var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
+                        if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[rowIndex]))
+                        {
+                            rawValue = _currentDocument.Columns[fieldInfo.FieldName][rowIndex]?.ToString();
+                        }
+                    }
+                }
+
+                // 🔥 【核心】如果找到了原始数据，直接强行改变编辑框正在显示的文本！
+                if (rawValue != null)
+                {
+                    textBox.Text = rawValue;
                 }
             }
         }
@@ -476,7 +621,7 @@ namespace DntEditor_Hang.Forms
                 return;
             }
             // 2. 定位并读取翻译 INI 文件 (假设翻译文件放在软件同级目录下)
-            Dictionary<string, string> translationDict = GlobalHelper.GetTranslationDict(GlobalHelper.AppRootPath, "dnt翻译.ini");
+            Dictionary<string, string> translationDict = GlobalHelper.GetTranslationDict(GlobalHelper.AppRootPath, translationDicts.dntTransFileName);
 
             if (translationDict==null)
             {
@@ -1018,7 +1163,11 @@ namespace DntEditor_Hang.Forms
 
             int colIndex = this.dataGridView1.CurrentCell.ColumnIndex;
             string sourceColumnName = this.dataGridView1.Columns[colIndex].Name;
-
+            if (colIndex == 0)
+            {
+                MessageBox.Show("翻译失败，[中文翻译]列不可以作为翻译目标", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             try
             {
                 // 2. 刷新前清空网格绑定（如果是普通模式）或暂停重绘，虚拟模式可以直接往下走
@@ -1143,6 +1292,119 @@ namespace DntEditor_Hang.Forms
                     MessageBox.Show(this, "仅支持读取 .ini 格式的二进制文件！", "格式错误");
                 }
             }
+        }
+        /// <summary>
+        /// 
+        /// 翻译覆盖所选列(F3)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // 1. UI 层的安全前置拦截
+            if (this.dataGridView1.CurrentCell == null) return;
+
+            int colIndex = this.dataGridView1.CurrentCell.ColumnIndex;
+            string sourceColumnName = this.dataGridView1.Columns[colIndex].Name;
+            if (colIndex == 0)
+            {
+                MessageBox.Show("翻译失败，[中文翻译]列不可以作为翻译目标", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (colTranDict[sourceColumnName].isTrans)
+            {
+                colTranDict[sourceColumnName].isTrans = false;
+                if (this.dataGridView1.VirtualMode)
+                {
+                    // 虚拟模式高性能通知重绘
+                    this.dataGridView1.Invalidate();
+                }
+                else
+                {
+                    this.dataGridView1.Refresh();
+                }
+                return;
+            }
+            try
+            {
+                // 2. 刷新前清空网格绑定（如果是普通模式）或暂停重绘，虚拟模式可以直接往下走
+                // this.dataGridView1.DataSource = null; 
+
+                // 3. 一行代码调用模块化翻译核心函数
+                colTranDict[sourceColumnName].isTrans = true;
+                int processedCount = dicts.OverTranslateColumnData(
+                    _currentDocument,
+                    sourceColumnName,
+                    dicts.translationDict,
+                    colTranDict[sourceColumnName]
+                );
+
+                // 4. UI 刷新反馈
+                if (processedCount >= 0)
+                {
+                    if (this.dataGridView1.VirtualMode)
+                    {
+                        // 虚拟模式高性能通知重绘
+                        this.dataGridView1.Invalidate();
+                    }
+                    else
+                    {
+                        this.dataGridView1.Refresh();
+                    }
+
+                    //MessageBox.Show($"翻译碰撞完成！已成功处理 {processedCount} 行数据。", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    colTranDict[sourceColumnName].isTrans = false;
+                    MessageBox.Show("翻译失败，请检查数据核心列或目标翻译列是否初始化！", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"解析嵌套文本时崩溃防御: {ex.Message}", "崩溃防御", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int colCount = _currentDocument.FieldCount;
+                if (checkBox2.Checked && colCount >= 2)
+                {//翻译表头
+                    if (headDicts == null)
+                    {
+                        headDicts = new Dictionary<string, string>();
+                    }
+                    headDicts = GlobalHelper.LoadIniTranslation(GlobalHelper.AppRootPath + translationDicts.dntHeadTransFileName);
+                    foreach (var item in _currentDocument.Fields)
+                    {
+                        string FieldName = item.FieldName;
+                        headDicts.TryGetValue(FieldName, out string chineseName);
+                        dataGridView1.Columns[FieldName].HeaderText = chineseName;
+                    }
+                    // 强制整个控件重新绘制（双重保险）
+                    dataGridView1.Refresh();
+                }
+                else
+                {//显示表头原文
+                    int colIndex = 2;
+                    foreach (var item in _currentDocument.Fields)
+                    {
+                        string FieldName = item.FieldName;
+                        dataGridView1.Columns[FieldName].HeaderText = FieldName;
+                    }
+                    //刷新
+                    // 强制整个控件重新绘制（双重保险）
+                    dataGridView1.Refresh();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"解析翻译文本时崩溃防御: {ex.Message}", "崩溃防御", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+           
         }
     }
 }

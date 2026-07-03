@@ -75,7 +75,7 @@ namespace DntEditor_Hang.Helpers
                                 columnList.Add(GameEncoding.GetString(strBytes));
                                 break;
                             case DntFieldType.BooleanInt:
-                                columnList.Add(br.ReadInt32() != 0);
+                                columnList.Add(br.ReadInt32());
                                 break;
                             case DntFieldType.Int32:
                                 columnList.Add(br.ReadInt32());
@@ -150,7 +150,7 @@ namespace DntEditor_Hang.Helpers
                                     bw.Write(strBytes);
                                     break;
                                 case DntFieldType.BooleanInt:
-                                    bw.Write((bool)val ? 1 : 0);
+                                    bw.Write((bool)val);
                                     break;
                                 case DntFieldType.Int32:
                                     bw.Write((int)val);

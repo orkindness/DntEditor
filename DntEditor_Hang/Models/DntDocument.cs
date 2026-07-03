@@ -53,7 +53,7 @@ namespace DntEditor_Hang.Models
                         columnList = new List<string>((int)RecordCount);
                         break;
                     case DntFieldType.BooleanInt:
-                        columnList = new List<bool>((int)RecordCount);
+                        columnList = new List<int>((int)RecordCount);
                         break;
                     case DntFieldType.Int32:
                         columnList = new List<int>((int)RecordCount);

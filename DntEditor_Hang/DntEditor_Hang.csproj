@@ -112,12 +112,14 @@
     <Compile Include="Forms\SetingForm.Designer.cs">
       <DependentUpon>SetingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ListSearch.cs" />
     <Compile Include="Helpers\CyclicXorCryptoHelper.cs" />
     <Compile Include="Helpers\DntConvertHelpers.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\IniHelpers.cs" />
+    <Compile Include="Models\ColumTranslationItem.cs" />
     <Compile Include="Models\DntBatchTranslator.cs" />
-    <Compile Include="Models\translationDict.cs" />
+    <Compile Include="Models\translationDicts.cs" />
     <Compile Include="Models\statusLabel.cs" />
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Models\DntFileItem.cs" />
