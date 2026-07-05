@@ -23,6 +23,7 @@ namespace DntEditor_Hang.Forms
         private IniTranslationForm2 IniTranslationForm2 = null;
         private DntDeepSearchForm dntDeepSearchForm = null;
         private PakPackerForm PakPackerForm = null;
+        private FilterForm filterForm = null;
 
         public string _currentLoadedFilePath = string.Empty; // 记录当前打开的文件路径
         public string _currentLoadedFileName = string.Empty;// 记录当前打开的文件名
@@ -30,6 +31,7 @@ namespace DntEditor_Hang.Forms
         private translationDicts dicts = null;  //翻译字典
         private Dictionary<string,string> headDicts = null;  //翻译表头字典
         private Dictionary<string, ColumTranslationItem> colTranDict = null;//存放列翻译内容
+        private List<uint> dList = null;
         public MainForm()
         {
             InitializeComponent();
@@ -161,7 +163,11 @@ namespace DntEditor_Hang.Forms
                 {
                     colTranDict.Add(colKey,new ColumTranslationItem());
                 }
-
+                dList = new List<uint>();
+                for (uint i = 0; i < _currentDocument.RecordCount; i++)
+                {
+                    dList.Add(i);
+                }
                 // 2. 扔给虚拟化初始化方法，界面瞬间加载完毕！
                 InitVirtualDataGridView(_currentDocument);
                 UpdateRowHeaderWidth();
@@ -261,7 +267,7 @@ namespace DntEditor_Hang.Forms
             var pkidList = _currentDocument.Columns["PKID"] as List<uint>;
             if (pkidList == null || e.RowIndex >= pkidList.Count) return;
 
-            
+            int realIndex = (int)dList[e.RowIndex];
             // 情况 A：第 0 列 —— 最左侧中文翻译列
             if (e.ColumnIndex == 0)
             {
@@ -272,7 +278,7 @@ namespace DntEditor_Hang.Forms
                 }
                 else
                 {
-                    e.Value = transList[e.RowIndex];
+                    e.Value = transList[realIndex];
                     
                 }
             }
@@ -282,12 +288,12 @@ namespace DntEditor_Hang.Forms
                 var ColTransItem = colTranDict["PKID"] as ColumTranslationItem;
                 if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]))
                 {
-                    e.Value = "T:" + ColTransItem.TranslatedTextList[e.RowIndex];
+                    e.Value = "T:" + ColTransItem.TranslatedTextList[realIndex];
                 }
                 else
                 {
                     // 核心更改 2：直接去分布式字典里的 "PKID" 强类型列中取数
-                    e.Value = pkidList[e.RowIndex];
+                    e.Value = pkidList[realIndex];
                 }
             }
             // 情况 C：第 2 列及往后 —— DNT 常规数据列
@@ -301,12 +307,12 @@ namespace DntEditor_Hang.Forms
                     var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
                     if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]))
                     {
-                        e.Value = "T:" + ColTransItem.TranslatedTextList[e.RowIndex];
+                        e.Value = "T:" + ColTransItem.TranslatedTextList[realIndex];
                     }
                     else
                     {
                         // 列式取数：找到该列对应的 IList 列表，拿出它的第 RowIndex 行数据
-                        e.Value = _currentDocument.Columns[fieldInfo.FieldName][e.RowIndex];
+                        e.Value = _currentDocument.Columns[fieldInfo.FieldName][realIndex];
                     }
                 }
             }
@@ -1405,6 +1411,25 @@ namespace DntEditor_Hang.Forms
                 MessageBox.Show($"解析翻译文本时崩溃防御: {ex.Message}", "崩溃防御", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
            
+        }
+
+        private void 筛选ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (filterForm == null || filterForm.IsDisposed)
+            {
+                filterForm = new FilterForm(dList,_currentDocument);
+
+                // 核心设置：不在 Windows 任务栏中显示此窗口
+                filterForm.ShowInTaskbar = false;
+                // 2. 核心设置：将起始位置设置为居中于父窗体（CenterParent）
+                filterForm.StartPosition = FormStartPosition.CenterParent;
+                // 配合 this，让子窗口作为主窗口的附属，主窗口最小化时它也会跟着隐藏
+                filterForm.Show(this);
+            }
+            else
+            {
+                filterForm.Activate();
+            }
         }
     }
 }

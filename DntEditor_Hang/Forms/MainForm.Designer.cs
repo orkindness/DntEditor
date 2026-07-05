@@ -133,7 +133,7 @@ namespace DntEditor_Hang.Forms
             this.dNT加解密ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1523, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(1523, 32);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -214,72 +214,73 @@ namespace DntEditor_Hang.Forms
             // 打开关闭工具栏ToolStripMenuItem
             // 
             this.打开关闭工具栏ToolStripMenuItem.Name = "打开关闭工具栏ToolStripMenuItem";
-            this.打开关闭工具栏ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.打开关闭工具栏ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.打开关闭工具栏ToolStripMenuItem.Text = "打开/关闭 工具栏";
             this.打开关闭工具栏ToolStripMenuItem.Click += new System.EventHandler(this.打开关闭工具栏ToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(251, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(267, 6);
             // 
             // 查找ToolStripMenuItem
             // 
             this.查找ToolStripMenuItem.Name = "查找ToolStripMenuItem";
-            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.查找ToolStripMenuItem.Text = "查找";
             this.查找ToolStripMenuItem.Click += new System.EventHandler(this.查找ToolStripMenuItem_Click);
             // 
             // 筛选ToolStripMenuItem
             // 
             this.筛选ToolStripMenuItem.Name = "筛选ToolStripMenuItem";
-            this.筛选ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.筛选ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.筛选ToolStripMenuItem.Text = "筛选";
+            this.筛选ToolStripMenuItem.Click += new System.EventHandler(this.筛选ToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(251, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(267, 6);
             // 
             // 向下插入一行insToolStripMenuItem
             // 
             this.向下插入一行insToolStripMenuItem.Name = "向下插入一行insToolStripMenuItem";
-            this.向下插入一行insToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.向下插入一行insToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向下插入一行insToolStripMenuItem.Text = "向下插入一行(ins)";
             // 
             // 向下插入N行ToolStripMenuItem
             // 
             this.向下插入N行ToolStripMenuItem.Name = "向下插入N行ToolStripMenuItem";
-            this.向下插入N行ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.向下插入N行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向下插入N行ToolStripMenuItem.Text = "向下插入N行";
             // 
             // 向上插入一行ToolStripMenuItem
             // 
             this.向上插入一行ToolStripMenuItem.Name = "向上插入一行ToolStripMenuItem";
-            this.向上插入一行ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.向上插入一行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向上插入一行ToolStripMenuItem.Text = "向上插入一行";
             // 
             // 删除当前行ToolStripMenuItem
             // 
             this.删除当前行ToolStripMenuItem.Name = "删除当前行ToolStripMenuItem";
-            this.删除当前行ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.删除当前行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.删除当前行ToolStripMenuItem.Text = "删除选中行(del)";
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(251, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(267, 6);
             // 
             // 快捷参数窗口ToolStripMenuItem
             // 
             this.快捷参数窗口ToolStripMenuItem.Name = "快捷参数窗口ToolStripMenuItem";
-            this.快捷参数窗口ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.快捷参数窗口ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.快捷参数窗口ToolStripMenuItem.Text = "快捷参数窗口";
             // 
             // 计算ToolStripMenuItem
             // 
             this.计算ToolStripMenuItem.Name = "计算ToolStripMenuItem";
-            this.计算ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.计算ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.计算ToolStripMenuItem.Text = "计算";
             // 
             // 数据库ToolStripMenuItem
@@ -437,9 +438,9 @@ namespace DntEditor_Hang.Forms
             this.panel1.Controls.Add(this.splitter2);
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 36);
+            this.panel1.Location = new System.Drawing.Point(0, 32);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1523, 1022);
+            this.panel1.Size = new System.Drawing.Size(1523, 1026);
             this.panel1.TabIndex = 2;
             // 
             // panel4
@@ -450,7 +451,7 @@ namespace DntEditor_Hang.Forms
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(494, 136);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(1029, 886);
+            this.panel4.Size = new System.Drawing.Size(1029, 890);
             this.panel4.TabIndex = 3;
             // 
             // label3
@@ -485,7 +486,7 @@ namespace DntEditor_Hang.Forms
             this.dataGridView1.RowHeadersWidth = 62;
             this.dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dataGridView1.RowTemplate.Height = 35;
-            this.dataGridView1.Size = new System.Drawing.Size(1029, 886);
+            this.dataGridView1.Size = new System.Drawing.Size(1029, 890);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.VirtualMode = true;
             this.dataGridView1.Visible = false;
@@ -495,7 +496,7 @@ namespace DntEditor_Hang.Forms
             // 
             this.splitter1.Location = new System.Drawing.Point(491, 136);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 886);
+            this.splitter1.Size = new System.Drawing.Size(3, 890);
             this.splitter1.TabIndex = 2;
             this.splitter1.TabStop = false;
             // 
@@ -505,7 +506,7 @@ namespace DntEditor_Hang.Forms
             this.panel3.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel3.Location = new System.Drawing.Point(0, 136);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(491, 886);
+            this.panel3.Size = new System.Drawing.Size(491, 890);
             this.panel3.TabIndex = 1;
             this.panel3.Visible = false;
             // 
@@ -517,7 +518,7 @@ namespace DntEditor_Hang.Forms
             this.dataGridView2.Name = "dataGridView2";
             this.dataGridView2.RowHeadersWidth = 30;
             this.dataGridView2.RowTemplate.Height = 30;
-            this.dataGridView2.Size = new System.Drawing.Size(491, 886);
+            this.dataGridView2.Size = new System.Drawing.Size(491, 890);
             this.dataGridView2.TabIndex = 0;
             this.dataGridView2.VirtualMode = true;
             // 
