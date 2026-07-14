@@ -247,6 +247,7 @@ namespace DntEditor_Hang.Forms
             this.向下插入一行insToolStripMenuItem.Name = "向下插入一行insToolStripMenuItem";
             this.向下插入一行insToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向下插入一行insToolStripMenuItem.Text = "向下插入一行(ins)";
+            this.向下插入一行insToolStripMenuItem.Click += new System.EventHandler(this.向下插入一行insToolStripMenuItem_Click);
             // 
             // 向下插入N行ToolStripMenuItem
             // 
@@ -259,12 +260,14 @@ namespace DntEditor_Hang.Forms
             this.向上插入一行ToolStripMenuItem.Name = "向上插入一行ToolStripMenuItem";
             this.向上插入一行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向上插入一行ToolStripMenuItem.Text = "向上插入一行";
+            this.向上插入一行ToolStripMenuItem.Click += new System.EventHandler(this.向上插入一行ToolStripMenuItem_Click);
             // 
             // 删除当前行ToolStripMenuItem
             // 
             this.删除当前行ToolStripMenuItem.Name = "删除当前行ToolStripMenuItem";
             this.删除当前行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.删除当前行ToolStripMenuItem.Text = "删除选中行(del)";
+            this.删除当前行ToolStripMenuItem.Click += new System.EventHandler(this.删除当前行ToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
@@ -678,7 +681,7 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.ToolStripMenuItem pAKToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 设置ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dNT加解密ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripMenuItem 打开DNT目录ToolStripMenuItem;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel3;

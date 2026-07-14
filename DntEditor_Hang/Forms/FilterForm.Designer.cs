@@ -59,6 +59,7 @@ namespace DntEditor_Hang.Forms
             this.button2.TabIndex = 2;
             this.button2.Text = "筛 选";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
@@ -147,6 +148,7 @@ namespace DntEditor_Hang.Forms
             this.Controls.Add(this.panel1);
             this.Name = "FilterForm";
             this.Text = "FilterForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FilterForm_FormClosing);
             this.Load += new System.EventHandler(this.FilterForm_Load);
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);

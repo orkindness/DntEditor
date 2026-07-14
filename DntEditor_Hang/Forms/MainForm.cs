@@ -31,7 +31,7 @@ namespace DntEditor_Hang.Forms
         private translationDicts dicts = null;  //翻译字典
         private Dictionary<string,string> headDicts = null;  //翻译表头字典
         private Dictionary<string, ColumTranslationItem> colTranDict = null;//存放列翻译内容
-        private List<uint> dList = null;
+        public List<uint> dList = null;
         public MainForm()
         {
             InitializeComponent();
@@ -249,9 +249,13 @@ namespace DntEditor_Hang.Forms
                     HeaderText = field.FieldName,
                     Width = 120,
                     // 核心修改：禁用点击表头自动排序，允许我们自定义点击事件
-                    SortMode = DataGridViewColumnSortMode.NotSortable
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
                     //AutoSizeMode = (DataGridViewAutoSizeColumnMode)DataGridViewAutoSizeColumnsMode.ColumnHeader
                 };
+                if (field.FieldType == DntFieldType.Percentage) 
+                {
+                    dataColumn.DefaultCellStyle.Format = "0.#######";
+                }
                 dataGridView1.Columns.Add(dataColumn);
             }
 
@@ -262,6 +266,7 @@ namespace DntEditor_Hang.Forms
         private void dataGridView1_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
             // 核心更改 1：行数的防御性校验。总行数现在直接读取 "PKID" 这一列的长度
+            if (dataGridView1.RowCount == 0) return;
             if (_currentDocument == null || e.RowIndex < 0) return;
 
             var pkidList = _currentDocument.Columns["PKID"] as List<uint>;
@@ -1417,7 +1422,7 @@ namespace DntEditor_Hang.Forms
         {
             if (filterForm == null || filterForm.IsDisposed)
             {
-                filterForm = new FilterForm(dList,_currentDocument);
+                filterForm = new FilterForm(this);
 
                 // 核心设置：不在 Windows 任务栏中显示此窗口
                 filterForm.ShowInTaskbar = false;
@@ -1430,6 +1435,137 @@ namespace DntEditor_Hang.Forms
             {
                 filterForm.Activate();
             }
+        }
+        private void datagridview_removeRow()
+        {
+
+            List<int> selectedRowIndices = dataGridView1.SelectedCells
+                    .Cast<DataGridViewCell>()
+                    .Select(cell => cell.RowIndex)
+                    .Distinct()
+                    .OrderByDescending(rowIndex => rowIndex)
+                    .ToList();
+            for (int i = 0; i < selectedRowIndices.Count; i++)
+            {
+                int realIndex = (int)dList[selectedRowIndices[i]];
+
+                int j = 0;
+                foreach (var item in _currentDocument.Columns.Values)
+                {
+                    if (j == 0 && item.Count == 0)
+                    {
+                        ((List<string>)item).Capacity--;
+                        j++;
+                        continue;
+                    }
+                    item.RemoveAt(realIndex);
+                    j++;
+                }
+                dList.RemoveAt(selectedRowIndices[i]);
+            }
+            for (int i = 0; i < length; i++)
+            {
+
+            }
+            // 2. 刷新界面（利用先赋0、后赋新值、挂起布局的优化组合拳）
+            dataGridView1.SuspendLayout();
+            dataGridView1.RowCount = 0;
+            dataGridView1.RowCount = dList.Count;
+            dataGridView1.ResumeLayout();
+
+            statusLabel.rowsCount = dList.Count;
+            this.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count"></param> 增加行数
+        /// <param name="addORremove"></param> 0:向上添加 1:向下添加
+        private void datagridview_addRow(int count,int addORremove)
+        {
+            var colIndex = dataGridView1.CurrentCell.ColumnIndex;
+            int rowIndex = dataGridView1.CurrentCell.RowIndex;
+            if (rowIndex < 0) return;
+
+            int realRowIndex = (int)dList[rowIndex] + 1;
+            for (int i = 0; i < count; i++)
+            {
+                //每列数据插入数据
+                int j = 0;
+                foreach (var item in _currentDocument.Columns.Values)
+                {
+                    if (j == 0)
+                    {
+                        if (item.Count==0)
+                        {
+                            ((List<string>)item).Capacity++;
+                        }
+                        else
+                        {
+                            ((List<string>)item).Insert(realRowIndex, "");
+                        }
+                    }
+                    else if (j == 1)
+                    {
+                        ((List<uint>)item).Insert(realRowIndex, 0);
+                    }
+                    else
+                    {
+                        switch (_currentDocument.Fields[j - 2].FieldType)
+                        {
+                            case DntFieldType.Text:
+                                ((List<string>)item).Insert(realRowIndex, "");
+                                break;
+                            case DntFieldType.BooleanInt:
+                                ((List<int>)item).Insert(realRowIndex, 0);
+                                break;
+                            case DntFieldType.Int32:
+                                ((List<int>)item).Insert(realRowIndex, 0);
+                                break;
+                            case DntFieldType.Percentage:
+                            case DntFieldType.Float:
+                                ((List<float>)item).Insert(realRowIndex, 0);
+                                break;
+                            default:
+                                ((List<string>)item).Insert(realRowIndex, "");
+                                break;
+                        }
+                    }
+                    j++;
+                }
+                dList.Insert(rowIndex + addORremove, dList[rowIndex] + (uint)(count - i));
+                _currentDocument.RecordCount++;
+            }
+
+            for (int k = rowIndex + addORremove + count; k < dList.Count; k++) 
+            {
+                dList[k] = dList[k] + (uint)count;
+            }
+
+            // 2. 刷新界面（利用先赋0、后赋新值、挂起布局的优化组合拳）
+            dataGridView1.SuspendLayout();
+            dataGridView1.RowCount = 0;
+            dataGridView1.RowCount = dList.Count;
+            dataGridView1.ResumeLayout();
+
+            statusLabel.rowsCount = dList.Count;
+            this.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
+
+            dataGridView1.CurrentCell = dataGridView1.Rows[rowIndex ].Cells[colIndex];
+        }
+        private void 向下插入一行insToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            datagridview_addRow(1, 1);
+        }
+
+        private void 向上插入一行ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            datagridview_addRow(1, 0);
+        }
+
+        private void 删除当前行ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            datagridview_removeRow();
         }
     }
 }

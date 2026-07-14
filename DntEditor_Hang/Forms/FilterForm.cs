@@ -16,6 +16,8 @@ namespace DntEditor_Hang.Forms
     {
         private List<uint> dList = null;
         private DntDocument document = null;
+        private DataGridView dataGridView = null;
+        private MainForm mainForm = null;
 
         private Dictionary<string, List<DataItem>> dataDics = new Dictionary<string, List<DataItem>>();
         private List<string> colNameList = null;
@@ -24,12 +26,14 @@ namespace DntEditor_Hang.Forms
         private bool isUpdatingItems;
 
         private int checkListCount = 40000;
-        public FilterForm(List<uint> list, DntDocument doc)
+        public FilterForm(MainForm form)
         {
             InitializeComponent();
             this.MaximizeBox = false;
-            dList = list;
-            document = doc;
+            mainForm = form;
+            dList = form.dList;
+            document = form._currentDocument;
+            dataGridView = form.dataGridView1;
             InitializeFilterParamCombo();
         }
 
@@ -59,10 +63,23 @@ namespace DntEditor_Hang.Forms
         /// <param name="e"></param>
         private void button3_Click(object sender, EventArgs e)
         {
-            //清空容器控件
-            this.panel1.Controls.Clear();
-            //List重新赋值
-            InitializeFilterParamCombo();
+            dataGridView.SuspendLayout();
+
+            // 先彻底归零，迫使控件内部直接抛弃旧数据集，而不是逐行做溢出计算
+            dataGridView.RowCount = 0;
+
+            int count = mainForm._currentDocument.Columns["PKID"].Count;
+            // 紧接着赋新值
+            dataGridView.RowCount = count;
+            mainForm.dList = new List<uint>();
+            for (uint i = 0; i < count; i++)
+            {
+                mainForm.dList.Add(i);
+            }
+
+            statusLabel.rowsCount = count;
+            mainForm.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
+            dataGridView.ResumeLayout();
         }
         /// <summary>
         /// add增加条件
@@ -92,8 +109,12 @@ namespace DntEditor_Hang.Forms
                 combo.cancelBt.Click += new System.EventHandler(this.cancel_Click);
             }
             else
+
             {   //令初始行取消按钮失效
                 combo.cancelBt.Enabled = false;
+                combo.ParamOperatorComboBox.SelectedIndex = 1;
+
+                //combo.equlTextBox.Text = combo.ParamOperatorComboBox.Text;
             }
             //为运算符添加方法;
             combo.OperatorComboBox.SelectedValueChanged += operator_SelectedValueChanged;
@@ -207,7 +228,7 @@ namespace DntEditor_Hang.Forms
 
         private void loadDataDics(int colIndex,int paramIndex)
         {
-            if (colIndex == null || colNameList == null || document ==null) return;
+            if (colNameList == null || document ==null) return;
             string colName = colNameList[colIndex];
             
             if (dataDics.ContainsKey(colName))
@@ -223,18 +244,13 @@ namespace DntEditor_Hang.Forms
 
                 List<object> colValueList = document.Columns[colName].Cast<object>().Distinct().ToList();
 
-                DataItem item_first = new DataItem();
-                item_first.Index = -1;
-                item_first.IsChecked = false;
-                item_first.Name = "全选";
-                itemList.Add(item_first);
-
                 foreach (var colValue in colValueList)
                 {
                     DataItem item = new DataItem();
                     item.Index = rowIndex++;
                     item.IsChecked = false;
                     item.Name = colValue.ToString();
+                    item.colIndex = colIndex;
                     itemList.Add(item);
                 }
                 dataDics[colName] = itemList;
@@ -253,17 +269,33 @@ namespace DntEditor_Hang.Forms
             string textString = filterCombo.equlTextBox.Text.Trim();
             //CheckedListBox checkedList = filterCombo.checkedListBox;
             CheckedListBox checkedList = this.checkedListBox1;
-            List <DataItem> itemList = dataDics[colName].Where(item => item.Name.Contains(textString)).ToList();
+            List <DataItem> itemList = dataDics[colName].Where(item => item.Name.Contains(textString)).OrderByDescending(item=> item.IsChecked).ToList();
             //判断List和设置的List数据大小
             count = Math.Min(count, itemList.Count);
             // 1. 挂起绘图，防止大批量添加数据时界面闪烁、卡顿
             //checkedList.BeginUpdate();
 
             checkedList.Items.Clear();
+
+            DataItem item_first = new DataItem();
+            item_first.Index = -1;
+            item_first.IsChecked = false;
+            item_first.Name = "全选";
+            item_first.colIndex = filterCombo.ColumnComboBox.SelectedIndex;
+            //itemList.Add(item_first);
+            checkedList.Items.Add(item_first, false);
+
+            bool isAllChecked = true;
             for (int i = 0; i < count; i++)
             {
                 checkedList.Items.Add(itemList[i], itemList[i].IsChecked);
+                if (!itemList[i].IsChecked)
+                {//判断是否全选
+                    isAllChecked = false;
+                }
             }
+            checkedList.SetItemChecked(0, isAllChecked);//为全选item状态赋值
+
             // 显示属性：让 CheckedListBox 界面显示 Name 属性，但内部依然持有整个 DataItem 对象
             checkedList.DisplayMember = "Name";
             checkedList.Tag = paramList;    //为后续itemcheked方法做准备,定位真实数据列
@@ -282,7 +314,126 @@ namespace DntEditor_Hang.Forms
             //状态锁,预防loadCheckList()方法被误判为点击事件
             if (isUpdatingItems) return;
 
-            DataItem item = (DataItem)checkedListBox1.Items[e.Index];
+            DataItem currItem = (DataItem)checkedListBox1.Items[e.Index];
+            string colName = colNameList[currItem.colIndex];
+
+            if (currItem.Index == -1) 
+            {//全选按钮
+                isUpdatingItems = true; //设置状态锁,接下来修改items状态
+                for (int i = 0; i < checkedListBox1.Items.Count; i++)
+                {
+                    checkedListBox1.SetItemChecked(i,e.NewValue==CheckState.Checked);
+                }
+                foreach (var item in dataDics[colName])
+                {
+                    item.IsChecked = e.NewValue == CheckState.Checked;
+                }
+                isUpdatingItems = false; //恢复状态锁
+            }
+            else
+            {
+                dataDics[colName][currItem.Index].IsChecked = e.NewValue == CheckState.Checked;
+            }
+        }
+        private bool isFilter(object colValue,string operatorString,HashSet<string> paramItems,string pText,string mText)
+        {
+            switch (operatorString)
+            {
+                case "=":
+                case "等于":
+                    return paramItems.Contains(colValue.ToString());
+                case ">":
+                    return Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) > 0;
+                case "<":
+                    return Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) < 0;
+                case ">=":
+                    return Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) > 0 || Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) == 0;
+                case "<=":
+                    return Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) < 0 || Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) == 0;
+                case "<>":
+                    return Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) != 0 ;
+                case "between":
+                    return Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(pText)) > 0 && Convert.ToDouble(colValue).CompareTo(Convert.ToDouble(mText)) < 0;
+                case "like":
+                    return paramItems.Any(item => item.Contains(colValue.ToString()));
+                default:
+                    break;
+            }
+            return false;
+        }
+        /// <summary>
+        /// 筛选功能实现
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+
+                List<uint> processList = new List<uint>();
+                List<uint> rList = new List<uint>();
+                dList = new List<uint>();
+                for (int i = 0; i <document.Columns["PKID"].Count; i++)
+                {
+                    dList.Add((uint)i);
+                }
+                for (int i = 0; i < paramList.Count; i++)
+                {
+
+                    FilterParamCombo filterCombo = paramList[i];
+                    string paramOperator = filterCombo.ParamOperatorComboBox.Text;
+                    string operatorString = filterCombo.OperatorComboBox.Text;
+                    string colName = colNameList[filterCombo.ColumnComboBox.SelectedIndex];
+
+                    HashSet<string> targetValueSet = new HashSet<string>(dataDics[colName].Where(p => p.IsChecked == true).Select(p => p.Name));
+                    string pText = filterCombo.textBox.Text.Trim();
+                    string mText = filterCombo.MaxTextBox.Text.Trim();
+
+                    List<object> colDataList = document.Columns[colName].Cast<object>().ToList();
+
+                    if (paramOperator == "AND") 
+                    {
+                        processList = new List<uint>(rList);
+                    }
+                    else if (paramOperator == "OR")
+                    {
+                        processList = new List<uint>(dList);
+                    }
+                    List<uint> uList = new List<uint>();
+                    for (int j = 0; j < processList.Count; j++)
+                    {
+                        var colValue = colDataList[(int)processList[j]];
+                        //创建个方法来判当前值是否满足条件
+                        if (isFilter(colValue,operatorString,targetValueSet,pText,mText))
+                        {
+                            uList.Add((uint)j);
+                        }
+                    }
+                    if (paramOperator == "OR")
+                    {
+                        rList = uList.Union(rList).ToList();
+                    }
+                }
+
+                dataGridView.SuspendLayout();
+
+                // 先彻底归零，迫使控件内部直接抛弃旧数据集，而不是逐行做溢出计算
+                dataGridView.RowCount = 0;
+
+                // 紧接着赋新值
+                dataGridView.RowCount = rList.Count;
+                mainForm.dList = rList;
+
+                statusLabel.rowsCount = rList.Count;
+                mainForm.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
+                dataGridView.ResumeLayout();
+            }
+            catch
+            {
+                MessageBox.Show(this, "筛选出现异常", "筛选失败");
+            }
+            
         }
         private void PanelRemoveFilter(int index)
         {
@@ -409,6 +560,26 @@ namespace DntEditor_Hang.Forms
             checkListCount = int.Parse(tb.Text.Trim());
         }
 
+        private void FilterForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            dataGridView.SuspendLayout();
+
+            // 先彻底归零，迫使控件内部直接抛弃旧数据集，而不是逐行做溢出计算
+            dataGridView.RowCount = 0;
+
+            int count = mainForm._currentDocument.Columns["PKID"].Count;
+            // 紧接着赋新值
+            dataGridView.RowCount = count;
+            mainForm.dList = new List<uint>();
+            for (uint i = 0; i < count; i++)
+            {
+                mainForm.dList.Add(i);
+            }
+
+            statusLabel.rowsCount = count;
+            mainForm.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
+            dataGridView.ResumeLayout();
+        }
     }
     // 数据实体类
     public class DataItem
@@ -416,5 +587,6 @@ namespace DntEditor_Hang.Forms
         public int Index { get; set; }
         public string Name { get; set; }
         public bool IsChecked { get; set; }
+        public int colIndex { get; set; }
     }
 }
