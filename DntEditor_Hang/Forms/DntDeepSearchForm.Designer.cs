@@ -35,6 +35,9 @@ namespace DntEditor_Hang.Forms
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.fileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.rowIndex = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Content = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1.SuspendLayout();
@@ -46,17 +49,18 @@ namespace DntEditor_Hang.Forms
             // 
             this.textBox1.Location = new System.Drawing.Point(48, 61);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(244, 28);
+            this.textBox1.Size = new System.Drawing.Size(419, 28);
             this.textBox1.TabIndex = 0;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(321, 53);
+            this.button1.Location = new System.Drawing.Point(487, 53);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(91, 41);
             this.button1.TabIndex = 1;
             this.button1.Text = "检 索";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // label1
             // 
@@ -72,7 +76,7 @@ namespace DntEditor_Hang.Forms
             this.checkBox1.AutoSize = true;
             this.checkBox1.Checked = true;
             this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(321, 25);
+            this.checkBox1.Location = new System.Drawing.Point(487, 25);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(106, 22);
             this.checkBox1.TabIndex = 3;
@@ -89,14 +93,47 @@ namespace DntEditor_Hang.Forms
             // 
             // dataGridView1
             // 
+            this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.fileName,
+            this.rowIndex,
+            this.Content});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowHeadersWidth = 62;
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.RowHeadersWidth = 45;
             this.dataGridView1.RowTemplate.Height = 30;
+            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView1.Size = new System.Drawing.Size(871, 402);
             this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.VirtualMode = true;
+            this.dataGridView1.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dataGridView1_CellValueNeeded);
+            // 
+            // fileName
+            // 
+            this.fileName.HeaderText = "匹配的文件名";
+            this.fileName.MinimumWidth = 8;
+            this.fileName.Name = "fileName";
+            this.fileName.ReadOnly = true;
+            this.fileName.Width = 250;
+            // 
+            // rowIndex
+            // 
+            this.rowIndex.HeaderText = "所在行数";
+            this.rowIndex.MinimumWidth = 8;
+            this.rowIndex.Name = "rowIndex";
+            this.rowIndex.ReadOnly = true;
+            this.rowIndex.Width = 120;
+            // 
+            // Content
+            // 
+            this.Content.HeaderText = "匹配行上下文原文数据内容";
+            this.Content.MinimumWidth = 8;
+            this.Content.Name = "Content";
+            this.Content.ReadOnly = true;
+            this.Content.Width = 1050;
             // 
             // statusStrip1
             // 
@@ -112,8 +149,8 @@ namespace DntEditor_Hang.Forms
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(195, 24);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(259, 24);
+            this.toolStripStatusLabel1.Text = "就绪，准备深度扫描DNT目录...";
             // 
             // DntDeepSearchForm
             // 
@@ -149,5 +186,8 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn rowIndex;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Content;
     }
 }

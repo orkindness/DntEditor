@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,6 +19,10 @@ namespace DntEditor_Hang.Helpers
         // 引入 Windows 底层写入 INI 的 API
         [DllImport("kernel32", CharSet = CharSet.Auto)]
         private static extern long WritePrivateProfileString(string section, string key, string value, string filePath);
+
+        [DllImport("kernel32", CharSet = CharSet.Auto)]
+        private static extern int GetPrivateProfileSectionNames(IntPtr lpszReturnBuffer, int nSize, string lpFileName);
+
 
         /// <summary>
         /// 写入 INI 配置（字符串）
@@ -88,6 +93,39 @@ namespace DntEditor_Hang.Helpers
             }
 
             return absPath; // 如果跟软件不在同一个目录下（比如软件在C盘，路径在D盘），必须原样保存绝对路径
+        }
+        // 获取 INI 文件中所有的 Section 节点名称
+        public static List<string> ReadSections(string filePath)
+        {
+            List<string> sections = new List<string>();
+            int bufferSize = 32768;
+            IntPtr pReturnedString = Marshal.AllocCoTaskMem(bufferSize);
+            try
+            {
+                int bytesReturned = GetPrivateProfileSectionNames(pReturnedString, bufferSize, filePath);
+                if (bytesReturned != 0)
+                {
+                    string localBuffer = Marshal.PtrToStringUni(pReturnedString, bytesReturned);
+                    string[] tmp = localBuffer.Split('\0');
+                    foreach (string s in tmp)
+                    {
+                        if (!string.IsNullOrEmpty(s)) sections.Add(s);
+                    }
+                }
+            }
+            finally
+            {
+                Marshal.FreeCoTaskMem(pReturnedString);
+            }
+            return sections;
+        }
+
+        // 读取指定 Section 和 Key 的值
+        public static string ReadValue(string section, string key, string filePath)
+        {
+            StringBuilder temp = new StringBuilder(1024);
+            GetPrivateProfileString(section, key, "", temp, 1024, filePath);
+            return temp.ToString();
         }
     }
 }

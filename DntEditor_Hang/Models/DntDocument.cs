@@ -29,7 +29,23 @@ namespace DntEditor_Hang.Models
         public DntFieldDescription GetFieldAt(int columnIndex)
         {
             if (columnIndex <= 0 || columnIndex > Fields.Count) return null;
-            return Fields[columnIndex - 1];
+            if (columnIndex == 0)
+            {
+                return new DntFieldDescription
+                {
+                    FieldName = "ChineseTranslation",
+                    FieldType = DntFieldType.Text
+                };
+            }
+            else if(columnIndex == 1)
+            {
+                return new DntFieldDescription
+                {
+                    FieldName = "PKID",
+                    FieldType = DntFieldType.Int32
+                };
+            }
+            return Fields[columnIndex - 2];
         }
 
         /// <summary>

@@ -482,29 +482,7 @@ namespace DntEditor_Hang.Forms
             }
             else return;
         }
-        //等于列表的textbox方法,后补
-        private void textBox5_MouseClick(object sender, MouseEventArgs e)
-        {
-            // 1. 将 sender 转换为 TextBox 控件
-            TextBox clickedTextBox = sender as TextBox;
-            // 鼠标点击时，在 TextBox 下方弹出 CheckListbox
-            //dropDown.Width = clickedTextBox.Width;
-            //dropDown.Show(clickedTextBox, new Point(0, clickedTextBox.Height), ToolStripDropDownDirection.BelowRight);
-        }
-
-        private void EqualTextBox_Enter(object sender, EventArgs e)
-        {
-            // 1. 将 sender 转换为 TextBox 控件
-            TextBox ETextBox = sender as TextBox;
-            //获取索引
-            if (ETextBox.Tag is int index)
-            {
-                //FilterParamCombo combo = paramList[index];
-
-                //combo.dropDown.Width = 2 * ETextBox.Width;
-                //combo.dropDown.Show(ETextBox, new Point(0, ETextBox.Height), ToolStripDropDownDirection.BelowRight);
-            }
-        }
+        
         private void EqualTextBox_changed(object sender, EventArgs e)
         {
             // 1. 每当文本改变，立刻停止之前的倒计时
@@ -562,6 +540,7 @@ namespace DntEditor_Hang.Forms
 
         private void FilterForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (mainForm._currentDocument == null) return;
             dataGridView.SuspendLayout();
 
             // 先彻底归零，迫使控件内部直接抛弃旧数据集，而不是逐行做溢出计算

@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CustomMarshalers" />
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.5.0, Culture=neutral, PublicKeyToken=8985beaab7ea3f04, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft-WindowsAPICodePack-Core.1.1.5\lib\net472\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -69,6 +70,12 @@
     </Compile>
     <Compile Include="Forms\BatchCryptoForm.Designer.cs">
       <DependentUpon>BatchCryptoForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CalculatorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CalculatorForm.Designer.cs">
+      <DependentUpon>CalculatorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\DntDeepSearchForm.cs">
       <SubType>Form</SubType>
@@ -106,6 +113,12 @@
     <Compile Include="Forms\PakPackerForm.Designer.cs">
       <DependentUpon>PakPackerForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\QuickParamForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\QuickParamForm.Designer.cs">
+      <DependentUpon>QuickParamForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SearchForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -122,6 +135,7 @@
     <Compile Include="Helpers\DntConvertHelpers.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\IniHelpers.cs" />
+    <Compile Include="Models\CompareOperator.cs" />
     <Compile Include="Models\FilterParamCombo.cs" />
     <Compile Include="Models\ColumTranslationItem.cs" />
     <Compile Include="Models\DntBatchTranslator.cs" />
@@ -135,6 +149,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\BatchCryptoForm.resx">
       <DependentUpon>BatchCryptoForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CalculatorForm.resx">
+      <DependentUpon>CalculatorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\DntDeepSearchForm.resx">
       <DependentUpon>DntDeepSearchForm.cs</DependentUpon>
@@ -153,6 +170,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\PakPackerForm.resx">
       <DependentUpon>PakPackerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\QuickParamForm.resx">
+      <DependentUpon>QuickParamForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SearchForm.resx">
       <DependentUpon>SearchForm.cs</DependentUpon>

@@ -11,6 +11,7 @@ using DntEditor_Hang.Models;
 using DntEditor_Hang.Helpers;
 using System.IO;
 using System.Diagnostics;
+using Microsoft.VisualBasic;
 
 namespace DntEditor_Hang.Forms
 {
@@ -24,6 +25,8 @@ namespace DntEditor_Hang.Forms
         private DntDeepSearchForm dntDeepSearchForm = null;
         private PakPackerForm PakPackerForm = null;
         private FilterForm filterForm = null;
+        private QuickParamForm quickParamForm = null;
+        private CalculatorForm calculatorForm = null;
 
         public string _currentLoadedFilePath = string.Empty; // 记录当前打开的文件路径
         public string _currentLoadedFileName = string.Empty;// 记录当前打开的文件名
@@ -32,12 +35,19 @@ namespace DntEditor_Hang.Forms
         private Dictionary<string,string> headDicts = null;  //翻译表头字典
         private Dictionary<string, ColumTranslationItem> colTranDict = null;//存放列翻译内容
         public List<uint> dList = null;
+
+        private Size lastSize;
+        private bool isUpdateCellSelect = false;
         public MainForm()
         {
             InitializeComponent();
             AppConfig.Load();
             LoadDntFilesToGrid(AppConfig.DntPath);
             initilizationDicts();
+
+            // 初始化时先记录一次初始尺寸
+            lastSize = panel3.Size;
+
             this.checkBox1.Checked = AppConfig.IsSyncSaveEnabled;//配置文件内容:同时保存明文密文目录
 
 
@@ -59,6 +69,7 @@ namespace DntEditor_Hang.Forms
 
             this.textBox1.KeyPress += textBox1_KeyPress;
             this.textBox1.TextChanged += textBox1_TextChanged;
+
         }
 
 
@@ -90,7 +101,7 @@ namespace DntEditor_Hang.Forms
             }
             else
             {
-                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex - 1);
+                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
                 nameIdKey = _currentDocument.Columns[fieldInfo.FieldName][e.RowIndex]?.ToString()?.Trim() ?? string.Empty;
             }
             
@@ -147,8 +158,8 @@ namespace DntEditor_Hang.Forms
         private void ExecuteLoadDntFile(string filePath)
         {
             // 1. 初始化并启动秒表
-            statusLabel.stopwatch = new Stopwatch();
-            statusLabel.stopwatch.Start();
+            titleStatusLabel.stopwatch = new Stopwatch();
+            titleStatusLabel.stopwatch.Start();
             try
             {
                 _currentLoadedFilePath = filePath;
@@ -192,7 +203,7 @@ namespace DntEditor_Hang.Forms
             finally
             {
                 // 3. 无论成功或失败，停止秒表
-                statusLabel.stopwatch.Stop();
+                titleStatusLabel.stopwatch.Stop();
             }
             this.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
         }
@@ -305,7 +316,7 @@ namespace DntEditor_Hang.Forms
             else
             {
                 // 核心更改 3：传入 e.ColumnIndex - 1，从而在 GetFieldAt 内部正确跳过最前面的虚拟翻译列
-                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex - 1);
+                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
 
                 if (fieldInfo != null && _currentDocument.Columns.ContainsKey(fieldInfo.FieldName))
                 {
@@ -340,7 +351,7 @@ namespace DntEditor_Hang.Forms
                     pkidList[e.RowIndex] = uint.Parse(userInput);
                 }
                 // 传入 e.ColumnIndex - 1，在 GetFieldAt 内部正确跳过最前方的虚拟翻译列，从而拿到 DNT 列定义
-                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex - 1);
+                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
                 if (fieldInfo == null) return;
 
                 // 核心更改 3：通过字段名称直接从分布式 Columns 字典中提取对应的列列表
@@ -406,7 +417,7 @@ namespace DntEditor_Hang.Forms
             }
 
             // 3. 中间的数据列：根据 DNT 字段类型动态变色
-            var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex-1);
+            var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
             if (fieldInfo != null)
             {
                 var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
@@ -475,7 +486,7 @@ namespace DntEditor_Hang.Forms
             }
             else
             {
-                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex - 1);
+                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
                 if (fieldInfo != null && _currentDocument.Columns.ContainsKey(fieldInfo.FieldName))
                 {
                     var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
@@ -516,7 +527,7 @@ namespace DntEditor_Hang.Forms
                 }
                 else
                 {
-                    var fieldInfo = _currentDocument.GetFieldAt(colIndex - 1);
+                    var fieldInfo = _currentDocument.GetFieldAt(colIndex);
                     if (fieldInfo != null && _currentDocument.Columns.ContainsKey(fieldInfo.FieldName))
                     {
                         var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
@@ -541,6 +552,7 @@ namespace DntEditor_Hang.Forms
         /// <param name="e"></param>
         private void dataGridView1_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            isUpdateCellSelect = true;
             // 检查点击的是否是有效的列（排除了左上角的空白块）
             if (e.ColumnIndex >= 0)
             {
@@ -558,6 +570,8 @@ namespace DntEditor_Hang.Forms
                 // 3. 建议：将当前焦点单元格也移到该行的第一列（防止焦点框残留在其他地方）
 
             }
+            isUpdateCellSelect = false;
+            dataGridView1_SelectionChanged(sender, (EventArgs)e);
         }
         private void UpdateRowHeaderWidth()
         {
@@ -704,6 +718,15 @@ namespace DntEditor_Hang.Forms
         {
             // 切换 Pane2 的显示和隐藏状态
             panel3.Visible = !panel3.Visible;
+            if (panel3.Visible)
+            {
+                this.Width += panel3.Width;
+            }
+            else
+            {
+                this.Width -= panel3.Width;
+            }
+            
 
         }
 
@@ -1284,8 +1307,8 @@ namespace DntEditor_Hang.Forms
 
         private void 使用其他源ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string otherPath = GlobalHelper.AppRootPath + translationDicts.SourcePath + translationDicts.otherSourcePath;
-            string filePath = GlobalHelper.SelectFile("选择DNT文件", "DNT数据文件 (*.ini)", "*.ini", otherPath);
+            string otherPath = GlobalHelper.AppRootPath + "database\\" + translationDicts.otherSourcePath;
+            string filePath = GlobalHelper.SelectFile("选择其他翻译源文件", "翻译源文件 (*.ini)", "*.ini", otherPath);
             if (!string.IsNullOrEmpty(filePath))
             {
                 // 严谨校验：必须是 .dnt 后缀
@@ -1438,6 +1461,9 @@ namespace DntEditor_Hang.Forms
         }
         private void datagridview_removeRow()
         {
+            if (_currentDocument == null) return;
+            var colIndex1 = dataGridView1.CurrentCell.ColumnIndex;
+            int rowIndex1 = dataGridView1.CurrentCell.RowIndex;
 
             List<int> selectedRowIndices = dataGridView1.SelectedCells
                     .Cast<DataGridViewCell>()
@@ -1445,6 +1471,12 @@ namespace DntEditor_Hang.Forms
                     .Distinct()
                     .OrderByDescending(rowIndex => rowIndex)
                     .ToList();
+            if (selectedRowIndices.Count == 0) 
+            {
+                MessageBox.Show("未选择任何单元格!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            List<int> realIndexList = new List<int>();
             for (int i = 0; i < selectedRowIndices.Count; i++)
             {
                 int realIndex = (int)dList[selectedRowIndices[i]];
@@ -1461,17 +1493,24 @@ namespace DntEditor_Hang.Forms
                     item.RemoveAt(realIndex);
                     j++;
                 }
+                realIndexList.Add(realIndex);
                 dList.RemoveAt(selectedRowIndices[i]);
             }
-            for (int i = 0; i < length; i++)
+            for (int i = selectedRowIndices[selectedRowIndices.Count-1]; i < dList.Count; i++)
             {
-
+                //真实index索引
+                uint dlItem = dList[i];
+                //计算当前真实index大于删除行号数量
+                int count = realIndexList.Count(p => p <= dlItem);
+                dList[i] -= (uint)count;
             }
             // 2. 刷新界面（利用先赋0、后赋新值、挂起布局的优化组合拳）
             dataGridView1.SuspendLayout();
             dataGridView1.RowCount = 0;
             dataGridView1.RowCount = dList.Count;
             dataGridView1.ResumeLayout();
+
+            dataGridView1.CurrentCell = dataGridView1.Rows[rowIndex1].Cells[colIndex1];
 
             statusLabel.rowsCount = dList.Count;
             this.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
@@ -1483,10 +1522,14 @@ namespace DntEditor_Hang.Forms
         /// <param name="addORremove"></param> 0:向上添加 1:向下添加
         private void datagridview_addRow(int count,int addORremove)
         {
+            if (_currentDocument == null) return;
             var colIndex = dataGridView1.CurrentCell.ColumnIndex;
             int rowIndex = dataGridView1.CurrentCell.RowIndex;
-            if (rowIndex < 0) return;
-
+            if (rowIndex < 0)
+            {
+                MessageBox.Show("未选择任何单元格!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             int realRowIndex = (int)dList[rowIndex] + 1;
             for (int i = 0; i < count; i++)
             {
@@ -1566,6 +1609,165 @@ namespace DntEditor_Hang.Forms
         private void 删除当前行ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             datagridview_removeRow();
+        }
+
+        private void 向下插入N行ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 弹出输入框
+            string input = Interaction.InputBox("请输入一个正整数：", "输入提示", "");
+
+            if (string.IsNullOrEmpty(input))
+            {
+                // 用户点击了取消或未输入
+                return;
+            }
+
+            // 校验是否为正整数
+            if (int.TryParse(input, out int result) && result > 0)
+            {
+                //MessageBox.Show($"输入成功，数字为: {result}");
+                datagridview_addRow(result, 1);
+            }
+            else
+            {
+                MessageBox.Show("输入无效，请输入大于0的正整数！", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void 快捷参数窗口ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (quickParamForm == null || quickParamForm.IsDisposed)
+            {
+                quickParamForm = new QuickParamForm(this);
+
+                // 核心设置：不在 Windows 任务栏中显示此窗口
+                quickParamForm.ShowInTaskbar = false;
+                // 2. 核心设置：将起始位置设置为居中于父窗体（CenterParent）
+                quickParamForm.StartPosition = FormStartPosition.CenterParent;
+                // 配合 this，让子窗口作为主窗口的附属，主窗口最小化时它也会跟着隐藏
+                quickParamForm.Show(this);
+            }
+            else
+            {
+                quickParamForm.Activate();
+            }
+        }
+
+        private void panel3_SizeChanged(object sender, EventArgs e)
+        {
+            // 2. 获取当前最新的尺寸
+            Size currentSize = panel3.Size;
+
+            // 3. 计算宽度和高度的变化差值 (新值 - 旧值)
+            int deltaWidth = currentSize.Width - lastSize.Width;
+
+            this.Width += deltaWidth;
+
+            lastSize = currentSize;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            // 切换 Pane2 的显示和隐藏状态
+            panel3.Visible = !panel3.Visible;
+            if (panel3.Visible)
+            {
+                this.Width += panel3.Width;
+            }
+            else
+            {
+                this.Width -= panel3.Width;
+            }
+        }
+        public void InsertValueToSelectedCell(string value)
+        {
+            if (dataGridView1.SelectedCells.Count==0) return;
+            try
+            {
+                foreach (var cell in dataGridView1.SelectedCells.Cast<DataGridViewCell>())
+                {
+                    int realRowIndex = (int)dList[cell.RowIndex];
+                    int colIndex = cell.ColumnIndex;
+                    DntFieldDescription field = _currentDocument.GetFieldAt(colIndex);
+                    var colList = _currentDocument.Columns[field.FieldName];
+
+                    switch (field.FieldType)
+                    {
+                        case DntFieldType.Text:
+                            ((List<string>)colList)[realRowIndex] = value.Trim();
+                            break;
+                        case DntFieldType.BooleanInt:
+                        case DntFieldType.Int32:
+                            ((List<int>)colList)[realRowIndex] = int.Parse(value.Trim());
+                            break;
+                        case DntFieldType.Percentage:
+                        case DntFieldType.Float:
+                            ((List<float>)colList)[realRowIndex] = float.Parse(value.Trim());
+                            break;
+                        default:
+                            ((List<string>)colList)[realRowIndex] = value.Trim();
+                            break;
+                    }
+                }
+                dataGridView1.Refresh();
+            }
+            catch
+            {
+                MessageBox.Show("插入数据和单元格格式不符,请重试", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
+            
+        }
+
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            if (isUpdateCellSelect) return;
+            statusLabel.sumCount = 0;
+            foreach (var cell in dataGridView1.SelectedCells.Cast<DataGridViewCell>())
+            {
+                if (double.TryParse(cell.Value?.ToString(), out double result))
+                {
+                    statusLabel.sumCount += result;
+                }
+                else
+                {
+                    statusLabel.sumCount = 0;
+                    break;
+                }
+            }
+            this.toolStripStatusLabel1.Text = statusLabel.mainStatusLabel();
+        }
+
+        private void dataGridView1_MouseDown(object sender, MouseEventArgs e)
+        {
+            isUpdateCellSelect = true;
+        }
+
+        private void dataGridView1_MouseUp(object sender, MouseEventArgs e)
+        {
+            isUpdateCellSelect = false;
+            dataGridView1_SelectionChanged(sender,e);
+        }
+
+        private void 计算ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 1. 如果窗口已经存在且未被销毁，先关闭并释放它
+            if (calculatorForm != null && !calculatorForm.IsDisposed)
+            {
+                calculatorForm.Close(); // Close 会自动触发 Dispose
+            }
+
+            // 2. 无论之前是否存在，这里都必定重新构造
+            calculatorForm = new CalculatorForm(this);
+
+            // 核心设置：不在 Windows 任务栏中显示此窗口
+            calculatorForm.ShowInTaskbar = false;
+
+            // 核心设置：将起始位置设置为居中于父窗体（CenterParent）
+            calculatorForm.StartPosition = FormStartPosition.CenterParent;
+
+            // 让子窗口作为主窗口的附属并显示
+            calculatorForm.Show(this);
         }
     }
 }

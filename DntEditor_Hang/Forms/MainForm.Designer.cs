@@ -92,6 +92,8 @@ namespace DntEditor_Hang.Forms
             this.button1 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.dNT文件转换ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.button2 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -254,6 +256,7 @@ namespace DntEditor_Hang.Forms
             this.向下插入N行ToolStripMenuItem.Name = "向下插入N行ToolStripMenuItem";
             this.向下插入N行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向下插入N行ToolStripMenuItem.Text = "向下插入N行";
+            this.向下插入N行ToolStripMenuItem.Click += new System.EventHandler(this.向下插入N行ToolStripMenuItem_Click);
             // 
             // 向上插入一行ToolStripMenuItem
             // 
@@ -279,12 +282,14 @@ namespace DntEditor_Hang.Forms
             this.快捷参数窗口ToolStripMenuItem.Name = "快捷参数窗口ToolStripMenuItem";
             this.快捷参数窗口ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.快捷参数窗口ToolStripMenuItem.Text = "快捷参数窗口";
+            this.快捷参数窗口ToolStripMenuItem.Click += new System.EventHandler(this.快捷参数窗口ToolStripMenuItem_Click);
             // 
             // 计算ToolStripMenuItem
             // 
             this.计算ToolStripMenuItem.Name = "计算ToolStripMenuItem";
             this.计算ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.计算ToolStripMenuItem.Text = "计算";
+            this.计算ToolStripMenuItem.Click += new System.EventHandler(this.计算ToolStripMenuItem_Click);
             // 
             // 数据库ToolStripMenuItem
             // 
@@ -391,10 +396,11 @@ namespace DntEditor_Hang.Forms
             // pAKToolStripMenuItem
             // 
             this.pAKToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.pAK补丁制作ToolStripMenuItem});
+            this.pAK补丁制作ToolStripMenuItem,
+            this.dNT文件转换ToolStripMenuItem});
             this.pAKToolStripMenuItem.Name = "pAKToolStripMenuItem";
-            this.pAKToolStripMenuItem.Size = new System.Drawing.Size(98, 28);
-            this.pAKToolStripMenuItem.Text = "补丁制作";
+            this.pAKToolStripMenuItem.Size = new System.Drawing.Size(62, 28);
+            this.pAKToolStripMenuItem.Text = "制作";
             // 
             // pAK补丁制作ToolStripMenuItem
             // 
@@ -494,6 +500,9 @@ namespace DntEditor_Hang.Forms
             this.dataGridView1.VirtualMode = true;
             this.dataGridView1.Visible = false;
             this.dataGridView1.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView1_RowPostPaint);
+            this.dataGridView1.SelectionChanged += new System.EventHandler(this.dataGridView1_SelectionChanged);
+            this.dataGridView1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dataGridView1_MouseDown);
+            this.dataGridView1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.dataGridView1_MouseUp);
             // 
             // splitter1
             // 
@@ -512,6 +521,7 @@ namespace DntEditor_Hang.Forms
             this.panel3.Size = new System.Drawing.Size(491, 890);
             this.panel3.TabIndex = 1;
             this.panel3.Visible = false;
+            this.panel3.SizeChanged += new System.EventHandler(this.panel3_SizeChanged);
             // 
             // dataGridView2
             // 
@@ -538,6 +548,7 @@ namespace DntEditor_Hang.Forms
             // 
             this.panel2.AutoScroll = true;
             this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.panel2.Controls.Add(this.button2);
             this.panel2.Controls.Add(this.checkBox3);
             this.panel2.Controls.Add(this.button4);
             this.panel2.Controls.Add(this.label1);
@@ -556,7 +567,7 @@ namespace DntEditor_Hang.Forms
             // checkBox3
             // 
             this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(349, 15);
+            this.checkBox3.Location = new System.Drawing.Point(377, 15);
             this.checkBox3.Name = "checkBox3";
             this.checkBox3.Size = new System.Drawing.Size(160, 22);
             this.checkBox3.TabIndex = 9;
@@ -565,7 +576,7 @@ namespace DntEditor_Hang.Forms
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(126, 52);
+            this.button4.Location = new System.Drawing.Point(154, 52);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(191, 36);
             this.button4.TabIndex = 8;
@@ -576,7 +587,7 @@ namespace DntEditor_Hang.Forms
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(528, 61);
+            this.label1.Location = new System.Drawing.Point(556, 61);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(80, 18);
             this.label1.TabIndex = 7;
@@ -586,7 +597,7 @@ namespace DntEditor_Hang.Forms
             // 
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(614, 58);
+            this.comboBox1.Location = new System.Drawing.Point(642, 58);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(227, 26);
             this.comboBox1.TabIndex = 6;
@@ -595,7 +606,7 @@ namespace DntEditor_Hang.Forms
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(349, 60);
+            this.checkBox2.Location = new System.Drawing.Point(377, 60);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(160, 22);
             this.checkBox2.TabIndex = 5;
@@ -605,7 +616,7 @@ namespace DntEditor_Hang.Forms
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(23, 47);
+            this.button3.Location = new System.Drawing.Point(51, 47);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(82, 35);
             this.button3.TabIndex = 3;
@@ -615,7 +626,7 @@ namespace DntEditor_Hang.Forms
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(23, 13);
+            this.textBox1.Location = new System.Drawing.Point(51, 13);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(82, 28);
             this.textBox1.TabIndex = 2;
@@ -623,7 +634,7 @@ namespace DntEditor_Hang.Forms
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(126, 7);
+            this.button1.Location = new System.Drawing.Point(154, 7);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(191, 36);
             this.button1.TabIndex = 1;
@@ -634,13 +645,30 @@ namespace DntEditor_Hang.Forms
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(528, 15);
+            this.checkBox1.Location = new System.Drawing.Point(556, 15);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(313, 22);
             this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "ctrl+s同时保存至(明文/密文)目录";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // dNT文件转换ToolStripMenuItem
+            // 
+            this.dNT文件转换ToolStripMenuItem.Name = "dNT文件转换ToolStripMenuItem";
+            this.dNT文件转换ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.dNT文件转换ToolStripMenuItem.Text = "DNT文件转换";
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.button2.Location = new System.Drawing.Point(4, 7);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(41, 81);
+            this.button2.TabIndex = 10;
+            this.button2.Text = "目 \r\n录";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // MainForm
             // 
@@ -735,5 +763,7 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolStripMenuItem dNT文件转换ToolStripMenuItem;
+        private System.Windows.Forms.Button button2;
     }
 }
