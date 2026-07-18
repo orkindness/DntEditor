@@ -27,6 +27,7 @@ namespace DntEditor_Hang.Forms
         private FilterForm filterForm = null;
         private QuickParamForm quickParamForm = null;
         private CalculatorForm calculatorForm = null;
+        private DntTranConverForm dntTranConverForm = null;
 
         public string _currentLoadedFilePath = string.Empty; // 记录当前打开的文件路径
         public string _currentLoadedFileName = string.Empty;// 记录当前打开的文件名
@@ -1768,6 +1769,25 @@ namespace DntEditor_Hang.Forms
 
             // 让子窗口作为主窗口的附属并显示
             calculatorForm.Show(this);
+        }
+
+        private void dNT文件转换ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dntTranConverForm == null || dntTranConverForm.IsDisposed)
+            {
+                dntTranConverForm = new DntTranConverForm();
+
+                // 核心设置：不在 Windows 任务栏中显示此窗口
+                dntTranConverForm.ShowInTaskbar = false;
+                // 2. 核心设置：将起始位置设置为居中于父窗体（CenterParent）
+                dntTranConverForm.StartPosition = FormStartPosition.CenterParent;
+                // 配合 this，让子窗口作为主窗口的附属，主窗口最小化时它也会跟着隐藏
+                dntTranConverForm.Show();
+            }
+            else
+            {
+                dntTranConverForm.Activate();
+            }
         }
     }
 }

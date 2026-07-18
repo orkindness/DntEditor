@@ -59,6 +59,12 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DntTranConverForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DntTranConverForm.Designer.cs">
+      <DependentUpon>DntTranConverForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -147,6 +153,9 @@
     <Compile Include="Models\DntFieldType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DntTranConverForm.resx">
+      <DependentUpon>DntTranConverForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\BatchCryptoForm.resx">
       <DependentUpon>BatchCryptoForm.cs</DependentUpon>
     </EmbeddedResource>

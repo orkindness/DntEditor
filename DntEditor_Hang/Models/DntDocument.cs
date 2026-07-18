@@ -28,7 +28,7 @@ namespace DntEditor_Hang.Models
         /// </summary>
         public DntFieldDescription GetFieldAt(int columnIndex)
         {
-            if (columnIndex <= 0 || columnIndex > Fields.Count) return null;
+            if (columnIndex <= 0 || columnIndex > Fields.Count + 1) return null;
             if (columnIndex == 0)
             {
                 return new DntFieldDescription
