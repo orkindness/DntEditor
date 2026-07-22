@@ -58,6 +58,16 @@ namespace DntEditor_Hang.Forms
             //titleStatusLabel.stopwatch.Start();
             try
             {
+                // 1. 改变鼠标状态为“等待/漏斗”状态
+                Cursor.Current = Cursors.WaitCursor;
+                this.toolStripStatusLabel1.Text = "正在拼命检索中......请稍后";
+                // 【核心修复】：强行让状态栏所属的 statusStrip 控件（请根据你实际的控件名修改，通常是 statusStrip1）立即重绘更新界面
+                // 如果你不知道状态栏叫什么名字，也可以直接写 this.Refresh(); 强行刷新整个窗体
+                if (toolStripStatusLabel1.Owner != null)
+                {
+                    toolStripStatusLabel1.Owner.Refresh();
+                }
+
                 if (dntDocuments == null)
                 {
                     dntFiles = Directory.GetFiles(folderPath, "*.dnt", SearchOption.TopDirectoryOnly);
@@ -77,7 +87,7 @@ namespace DntEditor_Hang.Forms
                     //调用对比方法
                     foreach (var doc in dntDocuments)
                     {
-                        compareText(doc,dntFiles[count]);
+                        compareText(doc, dntFiles[count]);
                         count++;
                     }
                 }
@@ -98,6 +108,7 @@ namespace DntEditor_Hang.Forms
                 // 3. 无论成功或失败，停止秒表
                 //titleStatusLabel.stopwatch.Stop();
                 stopwatch.Stop();
+                Cursor.Current = Cursors.Default;
             }
 
             string timeConsumed = "";
@@ -114,7 +125,7 @@ namespace DntEditor_Hang.Forms
 
             this.toolStripStatusLabel1.Text = "匹配数:" + dataList.Count + " | " + timeConsumed;
         }
-        private void compareText(DntDocument doc,string filePath)
+        private void compareText(DntDocument doc, string filePath)
         {
             string searchText = textBox1.Text.Trim();
             List<int> rowList = new List<int>();
@@ -132,6 +143,7 @@ namespace DntEditor_Hang.Forms
                             indexList.Add(i);
                             /***
                             indexList.Add(new DeepSearchItem { 
+                            filePath = filePath,
                             fileName = Path.GetFileName(filePath),
                             rowIndex = i,
                             context = getContext(doc, i)
@@ -157,6 +169,7 @@ namespace DntEditor_Hang.Forms
             {
                 dataList.Add(new DeepSearchItem
                 {
+                    filePath = filePath,
                     fileName = Path.GetFileName(filePath),
                     rowIndex = index,
                     context = getContext(doc, index)
@@ -169,7 +182,7 @@ namespace DntEditor_Hang.Forms
             string context = "";
             foreach (var item in doc.Columns.Values)
             {
-                if (item.Count > 0) 
+                if (item.Count > 0)
                 {
                     context += item[rowIndex].ToString() + ",";
                 }
@@ -181,23 +194,71 @@ namespace DntEditor_Hang.Forms
         {
             if (dataGridView1.RowCount == 0) return;
             if (dataList == null || e.RowIndex < 0) return;
-            if (e.ColumnIndex==0)
+            if (e.ColumnIndex == 0)
             {
                 e.Value = dataList[e.RowIndex].fileName;
             }
             else if (e.ColumnIndex == 1)
             {
-                e.Value = dataList[e.RowIndex].rowIndex;
+                e.Value = dataList[e.RowIndex].rowIndex + 1;
             }
             else if (e.ColumnIndex == 2)
             {
                 e.Value = dataList[e.RowIndex].context;
             }
-            
+
+        }
+
+        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // 避坑检查：e.RowIndex >= 0 确保双击的是有效数据行
+            // 如果 e.RowIndex == -1，说明用户双击的是“列标题（ColumnHeader）”，此时直接跳过
+            if (e.RowIndex >= 0)
+            {
+                try
+                {
+                    // 场景示例：假设你的表格第一列（索引 0）存的是文件或文件夹的完整路径
+                    //object cellValue = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
+                    object cellValue = dataList[e.RowIndex].filePath;
+
+                    if (cellValue != null)
+                    {
+                        string targetPath = cellValue.ToString();
+
+                        // 业务逻辑 1：如果双击的是个文件，用系统默认程序直接打开它（如双击效果）
+                        if (File.Exists(targetPath))
+                        {
+                            // 1. 获取当前正在运行的这个 exe 的完整路径
+                            string currentExePath = Application.ExecutablePath;
+
+                            // 2. 准备启动参数：为了防止文件路径中带有空格导致解析错误，用双引号把路径包裹起来
+                            // 格式形如： "C:\test file.txt" 5
+                            string arguments = $"\"{targetPath}\" {dataList[e.RowIndex].rowIndex}";
+                            // 3. 直接调用当前 exe 启动一个全新独立的进程，并传入文件路径
+                            System.Diagnostics.Process.Start(currentExePath, arguments);
+                        }
+                        // 业务逻辑 2：如果双击的是个文件夹，直接打开该文件夹
+                        else if (Directory.Exists(targetPath))
+                        {
+                            System.Diagnostics.Process.Start("explorer.exe", targetPath);
+                        }
+                        else
+                        {
+                            // 业务逻辑 3：如果只是普通文本，可以弹窗提示当前双击的信息
+                            MessageBox.Show($"你双击了第 {e.RowIndex} 行，内容是: {targetPath}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"无法打开目标路径: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
     public class DeepSearchItem
     {
+        public string filePath { get; set; }
         public string fileName { get; set; }
         public int rowIndex { get; set; }
         public string context { get; set; }

@@ -37,14 +37,19 @@ namespace DntEditor_Hang.Forms
         private Dictionary<string, ColumTranslationItem> colTranDict = null;//存放列翻译内容
         public List<uint> dList = null;
 
+        // 声明右键菜单
+        private ContextMenuStrip gridContextMenu;
+
         private Size lastSize;
         private bool isUpdateCellSelect = false;
-        public MainForm()
+        public MainForm(string filePath, int index)
         {
             InitializeComponent();
             AppConfig.Load();
             LoadDntFilesToGrid(AppConfig.DntPath);
             initilizationDicts();
+            // 初始化右键菜单
+            InitializeGridContextMenu();
 
             // 初始化时先记录一次初始尺寸
             lastSize = panel3.Size;
@@ -67,12 +72,174 @@ namespace DntEditor_Hang.Forms
             this.dataGridView1.EditingControlShowing += dataGridView1_EditingControlShowing;
             this.dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
             this.dataGridView1.CellValueChanged += DataGridView1_CellValueChanged;
+            // 绑定表格的鼠标按下事件
+            this.dataGridView1.CellMouseDown += DataGridView1_CellMouseDown;
+            // 2. 顺手绑定之前学过的快捷键监听事件（用来拦截 Ctrl+V 执行粘贴）
+            this.dataGridView1.KeyDown += DataGridView1_KeyDown;
 
             this.textBox1.KeyPress += textBox1_KeyPress;
             this.textBox1.TextChanged += textBox1_TextChanged;
 
+            ExecuteLoadDntFile(filePath);
+            textBox1.Text = (index+1).ToString();
+            currentCell();
         }
+        private void DataGridView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            // 监听 Ctrl + V 粘贴快捷键
+            if (e.Control && e.KeyCode == Keys.V)
+            {
+                PasteClipboardData();
+                e.Handled = true; // 阻止系统默认按键音
+            }
+        }
+        private void PasteClipboardData()
+        {
+            // 1. 检查剪贴板中是否有文本内容
+            if (!Clipboard.ContainsText()) return;
 
+            // 2. 获取当前选中的起始单元格
+            if (dataGridView1.CurrentCell == null) return;
+            int startRow = dataGridView1.CurrentCell.RowIndex;
+            int startCol = dataGridView1.CurrentCell.ColumnIndex;
+
+            // 3. 获取剪贴板文本，并按行切分
+            string clipboardText = Clipboard.GetText();
+            string[] lines = clipboardText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                // 过滤最后可能存在的空行
+                if (string.IsNullOrWhiteSpace(lines[i]) && i == lines.Length - 1) break;
+
+                int targetRow = startRow + i;
+
+                // 如果粘贴的数据超出了表格当前的最大行数
+                if (targetRow >= dataGridView1.RowCount)
+                {
+                    // 如果允许用户添加新行，则自动追加一行，否则跳过
+                    if (dataGridView1.AllowUserToAddRows)
+                    {
+                        dataGridView1.Rows.Add();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // 按制表符（\t）切分当前行的每一列
+                string[] cells = lines[i].Split('\t');
+
+                for (int j = 0; j < cells.Length; j++)
+                {
+                    int targetCol = startCol + j;
+
+                    // 确保不超出表格的总列数
+                    if (targetCol >= dataGridView1.ColumnCount) break;
+
+                    // 检查目标单元格是否允许编辑（只读单元格不覆盖）
+                    if (!dataGridView1.Rows[targetRow].Cells[targetCol].ReadOnly)
+                    {
+                        // 将剪贴板的值填入单元格
+                        dataGridView1.Rows[targetRow].Cells[targetCol].Value = cells[j];
+                    }
+                }
+            }
+        }
+        // 关键点 2：在单元格上按下鼠标时触发
+        private void DataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // 确保用户点击的是鼠标右键
+            if (e.Button == MouseButtons.Right)
+            {
+                // e.RowIndex >= 0 确保点击的是有效数据行（排除列头 RowIndex = -1）
+                // e.ColumnIndex >= 0 确保排除行头（ColumnIndex = -1）
+                if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+                {
+                    // 1. 清除当前表格中所有已选中的行
+                    dataGridView1.ClearSelection();
+
+                    // 2. 强行将鼠标右键点击的那一行设为选中状态（实现右键自动高亮）
+                    dataGridView1.Rows[e.RowIndex].Selected = true;
+
+                    // 3. 强行将当前活动单元格设为点击的单元格（可选，方便后续直接用 CurrentRow 获取数据）
+                    dataGridView1.CurrentCell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                    // 4. 在鼠标当前点击的坐标位置弹出右键菜单
+                    gridContextMenu.Show(MousePosition);
+                }
+            }
+        }
+        private void InitializeGridContextMenu()
+        {
+            gridContextMenu = new ContextMenuStrip();
+
+            // 创建菜单项
+            ToolStripMenuItem insUpkItem = new ToolStripMenuItem("向上插入一行");
+            ToolStripMenuItem insDownItem = new ToolStripMenuItem("向下插入一行(ins)");
+            ToolStripMenuItem insDownNItem = new ToolStripMenuItem("向下插入N行");
+            ToolStripMenuItem delItem = new ToolStripMenuItem("删除选中行(del)");
+            ToolStripMenuItem copyItem = new ToolStripMenuItem("复制 (Ctrl+C)");
+            ToolStripMenuItem pasteItem = new ToolStripMenuItem("粘贴 (Ctrl+V)");
+            ToolStripMenuItem calcItem = new ToolStripMenuItem("批量计算");
+            ToolStripMenuItem searchItem = new ToolStripMenuItem("查找");
+            ToolStripMenuItem filterItem = new ToolStripMenuItem("筛选");
+            ToolStripMenuItem tranColItem = new ToolStripMenuItem("翻译列 (F1)");
+            ToolStripMenuItem tranCellItem = new ToolStripMenuItem("翻译单元格 (F2)");
+            ToolStripMenuItem tranCol2Item = new ToolStripMenuItem("翻译列-覆盖 (F3)");
+            ToolStripMenuItem tranHeadItem = new ToolStripMenuItem("翻译标题 (F4)");
+
+            // 绑定事件
+            //packItem.Click += PackItem_Click;
+            //openItem.Click += OpenItem_Click;
+            copyItem.Click += (s, e) => {
+                // 调用 DataGridView 的原生复制方法
+                if (dataGridView1.GetCellCount(DataGridViewElementStates.Selected) > 0)
+                {
+                    Clipboard.SetDataObject(dataGridView1.GetClipboardContent());
+                }
+            };
+            pasteItem.Click += (s, e) => PasteClipboardData();
+            insUpkItem.Click += 向上插入一行ToolStripMenuItem_Click;
+            insDownItem.Click += 向下插入一行insToolStripMenuItem_Click;
+            insDownNItem.Click += 向下插入N行ToolStripMenuItem_Click;
+            delItem.Click += 删除当前行ToolStripMenuItem_Click;
+            calcItem.Click += 计算ToolStripMenuItem_Click;
+            searchItem.Click += 查找ToolStripMenuItem_Click;
+            filterItem.Click += 筛选ToolStripMenuItem_Click;
+            tranColItem.Click += button1_Click;
+            tranCellItem.Click += (s, e) =>
+             {
+                 checkBox3.Checked = !checkBox3.Checked;
+             };
+            tranCol2Item.Click += button4_Click;
+            tranHeadItem.Click += (s, e) =>
+            {
+                checkBox2.Checked = !checkBox2.Checked;
+            };
+
+            // 添加到菜单
+
+            // 【核心代码】：在这里插入一条横向分割线，把基础操作和业务操作分开
+
+            gridContextMenu.Items.Add(copyItem);
+            gridContextMenu.Items.Add(pasteItem);
+            gridContextMenu.Items.Add(new ToolStripSeparator());
+            gridContextMenu.Items.Add(insDownItem);
+            gridContextMenu.Items.Add(insDownNItem);
+            gridContextMenu.Items.Add(insUpkItem);
+            gridContextMenu.Items.Add(delItem);
+            gridContextMenu.Items.Add(new ToolStripSeparator());
+            gridContextMenu.Items.Add(searchItem);
+            gridContextMenu.Items.Add(filterItem);
+            gridContextMenu.Items.Add(new ToolStripSeparator());
+            gridContextMenu.Items.Add(tranColItem);
+            gridContextMenu.Items.Add(tranCellItem);
+            gridContextMenu.Items.Add(tranCol2Item);
+            gridContextMenu.Items.Add(tranHeadItem);
+            gridContextMenu.Items.Add(calcItem);
+        }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
@@ -158,6 +325,7 @@ namespace DntEditor_Hang.Forms
         /// </summary>
         private void ExecuteLoadDntFile(string filePath)
         {
+            if (string.IsNullOrEmpty(filePath)) return;
             // 1. 初始化并启动秒表
             titleStatusLabel.stopwatch = new Stopwatch();
             titleStatusLabel.stopwatch.Start();
@@ -345,21 +513,22 @@ namespace DntEditor_Hang.Forms
 
             if (e.ColumnIndex > 0)
             {
-
-                string userInput = e.Value?.ToString() ?? string.Empty;
-                if (e.ColumnIndex == 1)
-                {
-                    pkidList[e.RowIndex] = uint.Parse(userInput);
-                }
-                // 传入 e.ColumnIndex - 1，在 GetFieldAt 内部正确跳过最前方的虚拟翻译列，从而拿到 DNT 列定义
                 var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
-                if (fieldInfo == null) return;
-
-                // 核心更改 3：通过字段名称直接从分布式 Columns 字典中提取对应的列列表
-                var columnList = _currentDocument.Columns[fieldInfo.FieldName];
-
                 try
                 {
+                    string userInput = e.Value?.ToString() ?? string.Empty;
+                    if (e.ColumnIndex == 1)
+                    {
+                        pkidList[e.RowIndex] = uint.Parse(userInput);
+                    }
+                    // 传入 e.ColumnIndex - 1，在 GetFieldAt 内部正确跳过最前方的虚拟翻译列，从而拿到 DNT 列定义
+                    
+                    if (fieldInfo == null) return;
+
+                    // 核心更改 3：通过字段名称直接从分布式 Columns 字典中提取对应的列列表
+                    var columnList = _currentDocument.Columns[fieldInfo.FieldName];
+
+
                     // 核心更改 4：在 .NET 4.7.2 下，必须先将 columnList 转换为对应的强类型 List<T> 才能通过索引赋值
                     switch (fieldInfo.FieldType)
                     {
@@ -842,17 +1011,23 @@ namespace DntEditor_Hang.Forms
 
         private void pAK补丁制作ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (PakPackerForm == null || PakPackerForm.IsDisposed)
+            if (setingForm == null || setingForm.IsDisposed)
             {
-                PakPackerForm = new PakPackerForm();
+                setingForm = new SetingForm(this);
 
-                PakPackerForm.ShowInTaskbar = false;
+                // 核心设置：不在 Windows 任务栏中显示此窗口
+                setingForm.ShowInTaskbar = false;
+                // 2. 核心设置：将起始位置设置为居中于父窗体（CenterParent）
+                setingForm.StartPosition = FormStartPosition.CenterParent;
+                // 配合 this，让子窗口作为主窗口的附属，主窗口最小化时它也会跟着隐藏
+                setingForm.Show(this);
 
-                PakPackerForm.Show(this);
+                setingForm.button20_Click(sender,e);
             }
             else
             {
-                PakPackerForm.Activate();
+                setingForm.Activate();
+                setingForm.button20_Click(sender, e);
             }
         }
 
@@ -947,7 +1122,8 @@ namespace DntEditor_Hang.Forms
         }
         private void panel4_DoubleClick(object sender, EventArgs e)
         {
-            openDntfile(AppConfig.DntPath);
+            //openDntfile(AppConfig.DntPath);
+            button2_Click(sender, e);
         }
         #region 定位功能
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
@@ -1417,7 +1593,10 @@ namespace DntEditor_Hang.Forms
                     {
                         string FieldName = item.FieldName;
                         headDicts.TryGetValue(FieldName, out string chineseName);
-                        dataGridView1.Columns[FieldName].HeaderText = chineseName;
+                        if (!string.IsNullOrEmpty(chineseName))
+                        {
+                            dataGridView1.Columns[FieldName].HeaderText = chineseName;
+                        }
                     }
                     // 强制整个控件重新绘制（双重保险）
                     dataGridView1.Refresh();
@@ -1789,5 +1968,91 @@ namespace DntEditor_Hang.Forms
                 dntTranConverForm.Activate();
             }
         }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            // --- 1. 监听单键 (F1, F2, F3, F4, Insert, Delete) ---
+            switch (e.KeyCode)
+            {
+                case Keys.F1://翻译列
+                    //MessageBox.Show("触发了 F1 键");
+                    button1_Click(sender, e);
+                    e.Handled = true; // 阻止事件继续向下传递（可选）
+                    return;
+                case Keys.F2://单元格翻译
+                    checkBox3.Checked = !checkBox3.Checked;
+                    //MessageBox.Show("触发了 F2 键");
+                    e.Handled = true;
+                    return;
+                case Keys.F3://翻译覆盖所选列
+                    button4_Click(sender, e);
+                    //MessageBox.Show("触发了 F3 键");
+                    e.Handled = true;
+                    return;
+                case Keys.F4://翻译标题行
+                    checkBox2.Checked = !checkBox2.Checked;
+                    //MessageBox.Show("触发了 F4 键");
+                    e.Handled = true;
+                    return;
+                case Keys.Insert://向下插入一行
+                    //MessageBox.Show("触发了 Insert 键");
+                    向下插入一行insToolStripMenuItem_Click(sender, e);
+                    e.Handled = true;
+                    return;
+                case Keys.Delete://删除当前行
+                    //MessageBox.Show("触发了 Delete 键");
+                    删除当前行ToolStripMenuItem_Click(sender, e);
+                    e.Handled = true;
+                    return;
+            }
+
+            // --- 2. 监听组合键 (Ctrl + S) ---
+            if (e.Control && e.KeyCode == Keys.S)
+            {
+                //MessageBox.Show("触发了 Ctrl + S (保存)");
+                快速保存ctrlsToolStripMenuItem_Click(sender, e);
+                e.Handled = true;
+                return;
+            }
+
+            // --- 3. 监听组合键 (Ctrl + 1 到 7) ---
+            if (e.Control)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.D1:
+                        使用uistring源ToolStripMenuItem_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Keys.D2:
+                        使用物品源ToolStripMenuItem_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Keys.D3:
+                        使用技能源ToolStripMenuItem_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Keys.D4:
+                        使用地图源ToolStripMenuItem_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Keys.D5:
+                        使用怪物源ToolStripMenuItem_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Keys.D6:
+                        使用npc源ToolStripMenuItem_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Keys.D7:
+                        使用其他源ToolStripMenuItem_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
     }
 }

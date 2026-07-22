@@ -405,14 +405,14 @@ namespace DntEditor_Hang.Forms
             // pAK补丁制作ToolStripMenuItem
             // 
             this.pAK补丁制作ToolStripMenuItem.Name = "pAK补丁制作ToolStripMenuItem";
-            this.pAK补丁制作ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.pAK补丁制作ToolStripMenuItem.Size = new System.Drawing.Size(221, 34);
             this.pAK补丁制作ToolStripMenuItem.Text = "PAK补丁制作";
             this.pAK补丁制作ToolStripMenuItem.Click += new System.EventHandler(this.pAK补丁制作ToolStripMenuItem_Click);
             // 
             // dNT文件转换ToolStripMenuItem
             // 
             this.dNT文件转换ToolStripMenuItem.Name = "dNT文件转换ToolStripMenuItem";
-            this.dNT文件转换ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.dNT文件转换ToolStripMenuItem.Size = new System.Drawing.Size(221, 34);
             this.dNT文件转换ToolStripMenuItem.Text = "DNT文件转换";
             this.dNT文件转换ToolStripMenuItem.Click += new System.EventHandler(this.dNT文件转换ToolStripMenuItem_Click);
             // 
@@ -495,6 +495,7 @@ namespace DntEditor_Hang.Forms
             // dataGridView1
             // 
             this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             this.dataGridView1.ColumnHeadersHeight = 34;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
@@ -680,9 +681,11 @@ namespace DntEditor_Hang.Forms
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "DntEditor_Hang";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
