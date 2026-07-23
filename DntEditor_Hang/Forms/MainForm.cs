@@ -2058,6 +2058,9 @@ namespace DntEditor_Hang.Forms
                         使用其他源ToolStripMenuItem_Click(sender, e);
                         e.Handled = true;
                         break;
+                    case Keys.F:
+                        查找ToolStripMenuItem_Click(sender,e);
+                        break;
                     default:
                         break;
                 }
