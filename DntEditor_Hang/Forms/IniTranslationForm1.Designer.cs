@@ -29,6 +29,7 @@ namespace DntEditor_Hang.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IniTranslationForm1));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -211,6 +212,7 @@ namespace DntEditor_Hang.Forms
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "IniTranslationForm1";
             this.Text = "一键制作翻译源";
             this.Load += new System.EventHandler(this.IniTranslationForm1_Load);

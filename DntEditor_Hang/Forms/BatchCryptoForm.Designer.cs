@@ -29,6 +29,7 @@ namespace DntEditor_Hang.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BatchCryptoForm));
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
@@ -103,6 +104,7 @@ namespace DntEditor_Hang.Forms
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "BatchCryptoForm";
             this.Text = "批量加解密";
             this.Load += new System.EventHandler(this.BatchCryptoForm_Load);

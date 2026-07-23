@@ -29,6 +29,7 @@ namespace DntEditor_Hang.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CalculatorForm));
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -322,6 +323,7 @@ namespace DntEditor_Hang.Forms
             this.BackColor = System.Drawing.Color.Beige;
             this.ClientSize = new System.Drawing.Size(500, 296);
             this.Controls.Add(this.flowLayoutPanel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "CalculatorForm";
             this.Text = "CalculatorForm";
             this.Load += new System.EventHandler(this.CalculatorForm_Load);
