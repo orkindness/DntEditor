@@ -28,13 +28,14 @@ namespace DntEditor_Hang.Forms
         private QuickParamForm quickParamForm = null;
         private CalculatorForm calculatorForm = null;
         private DntTranConverForm dntTranConverForm = null;
+        private AddColumnForm addColumnForm = null;
 
         public string _currentLoadedFilePath = string.Empty; // 记录当前打开的文件路径
         public string _currentLoadedFileName = string.Empty;// 记录当前打开的文件名
         public DntDocument _currentDocument = null;          // 记录当前打开的文档对象
         private translationDicts dicts = null;  //翻译字典
         private Dictionary<string,string> headDicts = null;  //翻译表头字典
-        private Dictionary<string, ColumTranslationItem> colTranDict = null;//存放列翻译内容
+        public Dictionary<string, ColumTranslationItem> colTranDict = null;//存放列翻译内容
         public List<uint> dList = null;
 
         // 声明右键菜单
@@ -189,6 +190,8 @@ namespace DntEditor_Hang.Forms
             ToolStripMenuItem tranCellItem = new ToolStripMenuItem("翻译单元格 (F2)");
             ToolStripMenuItem tranCol2Item = new ToolStripMenuItem("翻译列-覆盖 (F3)");
             ToolStripMenuItem tranHeadItem = new ToolStripMenuItem("翻译标题 (F4)");
+            ToolStripMenuItem addColItem = new ToolStripMenuItem("增加列");
+            ToolStripMenuItem delColItem = new ToolStripMenuItem("删除列");
 
             // 绑定事件
             //packItem.Click += PackItem_Click;
@@ -218,7 +221,8 @@ namespace DntEditor_Hang.Forms
             {
                 checkBox2.Checked = !checkBox2.Checked;
             };
-
+            addColItem.Click += 增加列ToolStripMenuItem_Click;
+            delColItem.Click += 删除列ToolStripMenuItem_Click;
             // 添加到菜单
 
             // 【核心代码】：在这里插入一条横向分割线，把基础操作和业务操作分开
@@ -234,10 +238,14 @@ namespace DntEditor_Hang.Forms
             gridContextMenu.Items.Add(searchItem);
             gridContextMenu.Items.Add(filterItem);
             gridContextMenu.Items.Add(new ToolStripSeparator());
+            gridContextMenu.Items.Add(addColItem);
+            gridContextMenu.Items.Add(delColItem);
+            gridContextMenu.Items.Add(new ToolStripSeparator());
             gridContextMenu.Items.Add(tranColItem);
             gridContextMenu.Items.Add(tranCellItem);
             gridContextMenu.Items.Add(tranCol2Item);
             gridContextMenu.Items.Add(tranHeadItem);
+            gridContextMenu.Items.Add(new ToolStripSeparator());
             gridContextMenu.Items.Add(calcItem);
         }
 
@@ -381,7 +389,7 @@ namespace DntEditor_Hang.Forms
         /// <summary>
         /// 初始化并开启虚拟模式表格
         /// </summary>
-        private void InitVirtualDataGridView(DntDocument doc)
+        public void InitVirtualDataGridView(DntDocument doc)
         {
             _currentDocument = doc;
 
@@ -408,7 +416,8 @@ namespace DntEditor_Hang.Forms
                 Name = "ChineseTranslation",
                 HeaderText = "中文翻译",
                 Width = 130,
-                ReadOnly = true // 翻译列由 ini 配置决定，设为只读
+                ReadOnly = true, // 翻译列由 ini 配置决定，设为只读
+                Frozen = true
             };
             dataGridView1.Columns.Add(transColumn);
             DataGridViewColumn pkidColumn = new DataGridViewColumn(textCell)
@@ -453,10 +462,13 @@ namespace DntEditor_Hang.Forms
             if (pkidList == null || e.RowIndex >= pkidList.Count) return;
 
             int realIndex = (int)dList[e.RowIndex];
+
+            // 核心更改 3：传入 e.ColumnIndex - 1，从而在 GetFieldAt 内部正确跳过最前面的虚拟翻译列
+            var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
             // 情况 A：第 0 列 —— 最左侧中文翻译列
             if (e.ColumnIndex == 0)
             {
-                var transList = _currentDocument.Columns["ChineseTranslation"] as List<string>;
+                var transList = _currentDocument.Columns[fieldInfo.FieldName] as List<string>;
                 if (transList.Count==0)
                 {
                     e.Value = "";
@@ -470,7 +482,7 @@ namespace DntEditor_Hang.Forms
             // 情况 B：第 1 列 —— PKID 主键列
             else if (e.ColumnIndex == 1)
             {
-                var ColTransItem = colTranDict["PKID"] as ColumTranslationItem;
+                var ColTransItem = colTranDict[fieldInfo.FieldName] as ColumTranslationItem;
                 if (ColTransItem.isTrans && !string.IsNullOrEmpty(ColTransItem.TranslatedTextList[e.RowIndex]))
                 {
                     e.Value = "T:" + ColTransItem.TranslatedTextList[realIndex];
@@ -484,8 +496,6 @@ namespace DntEditor_Hang.Forms
             // 情况 C：第 2 列及往后 —— DNT 常规数据列
             else
             {
-                // 核心更改 3：传入 e.ColumnIndex - 1，从而在 GetFieldAt 内部正确跳过最前面的虚拟翻译列
-                var fieldInfo = _currentDocument.GetFieldAt(e.ColumnIndex);
 
                 if (fieldInfo != null && _currentDocument.Columns.ContainsKey(fieldInfo.FieldName))
                 {
@@ -564,7 +574,7 @@ namespace DntEditor_Hang.Forms
                 catch
                 {
                     // 如果用户输入了非法格式（比如在整型列输入了字母），在这里拦截并弹窗
-                    MessageBox.Show(this, "输入的数据格式不正确，该列需要【" + fieldInfo.FieldType + "】类型数据！", "修改失败");
+                    MessageBox.Show(this, $"输入的数据格式不正确，该列({fieldInfo.FieldName})需要【" + fieldInfo.FieldType + "】类型数据！", "修改失败");
                 }
             }
         }
@@ -2054,5 +2064,135 @@ namespace DntEditor_Hang.Forms
             }
         }
 
+        private void 增加列ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (addColumnForm == null || addColumnForm.IsDisposed)
+            {
+                addColumnForm = new AddColumnForm(this);
+
+                addColumnForm.ShowInTaskbar = false;
+
+                addColumnForm.Show(this);
+            }
+            else
+            {
+                addColumnForm.Activate();
+            }
+
+            /***
+            InitVirtualDataGridView(_currentDocument);
+
+            statusLabel.rowsCount = (int)_currentDocument.RecordCount + 1;
+            statusLabel.columnCount = _currentDocument.FieldCount + 1;
+            ***/
+        }
+
+        private void 删除列ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_currentDocument == null) return;
+            int colIndex = dataGridView1.CurrentCell.ColumnIndex;
+            int rowIndex = dataGridView1.CurrentCell.RowIndex;
+            if (colIndex < 2)
+            {
+                MessageBox.Show("无法删除第一列或第二列", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            DntFieldDescription colField = _currentDocument.GetFieldAt(colIndex);
+            // 1. 弹出询问对话框，设置标题、按钮（YesNoCancel）和警告图标
+            DialogResult result = MessageBox.Show(
+                $"是否删除列({colField.FieldName})？", // 提示信息
+                "提示",                                        // 对话框标题
+                MessageBoxButtons.YesNo,                // 显示 是、否、取消 三个按钮
+                MessageBoxIcon.Question                       // 显示 问号 图标
+            );
+
+            // 2. 根据用户的点击结果，执行不同的业务逻辑
+            if (result == DialogResult.Yes)
+            {
+
+                _currentDocument.Fields.RemoveAt(colIndex-2);
+                _currentDocument.FieldCount = (ushort)_currentDocument.Fields.Count;
+
+                InitVirtualDataGridView(_currentDocument);
+                //重新恢复焦点
+                dataGridView1.CurrentCell = dataGridView1.Rows[rowIndex].Cells[colIndex];
+                this.dataGridView1.Invalidate();
+
+                statusLabel.rowsCount = (int)_currentDocument.RecordCount + 1;
+                statusLabel.columnCount = _currentDocument.FieldCount + 1;
+
+                this.statusStrip1.Text = statusLabel.mainStatusLabel();
+                MessageBox.Show($"删除列({colField.FieldName}成功", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if (result == DialogResult.No)
+            {
+                // 用户点击了 “否”：不保存，直接跳过（如果是在关闭窗体，则允许直接关闭）
+                // 这里通常留空，或者执行后续不需要保存的刷新操作
+            }
+            
+        }
+
+        private void 清空DNT表格ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_currentDocument == null) return;
+
+            DialogResult result = MessageBox.Show(
+                "确定要清空表格的所有内容吗??？", // 提示信息
+                "提示",                                        // 对话框标题
+                MessageBoxButtons.YesNo,                // 显示 是、否、取消 三个按钮
+                MessageBoxIcon.Question                       // 显示 问号 图标
+            );
+
+            // 2. 根据用户的点击结果，执行不同的业务逻辑
+            if (result == DialogResult.Yes)
+            {
+                _currentDocument.Columns[_currentDocument.GetFieldAt(0).FieldName] = new List<string>(1);
+                _currentDocument.Columns[_currentDocument.GetFieldAt(1).FieldName] = Enumerable.Repeat((uint)0, 1).ToList();
+                foreach (var filed in _currentDocument.Fields)
+                {
+                    System.Collections.IList columnList;
+
+                    switch (filed.FieldType)
+                    {
+                        case DntFieldType.Text:
+                            columnList = Enumerable.Repeat(string.Empty, 1).ToList();
+                            break;
+                        case DntFieldType.BooleanInt:
+                            columnList = Enumerable.Repeat(0, 1).ToList();
+                            break;
+                        case DntFieldType.Int32:
+                            columnList = Enumerable.Repeat(0, 1).ToList();
+                            break;
+                        case DntFieldType.Percentage:
+                        case DntFieldType.Float:
+                            columnList = Enumerable.Repeat(0f, 1).ToList();
+                            break;
+                        default:
+                            columnList = Enumerable.Repeat(string.Empty, 1).ToList();
+                            break;
+                    }
+                    _currentDocument.Columns[filed.FieldName] = columnList;
+                }
+                dList = new List<uint> { 0 };
+                _currentDocument.RecordCount = (uint)dList.Count;
+                // 2. 刷新界面（利用先赋0、后赋新值、挂起布局的优化组合拳）
+                dataGridView1.SuspendLayout();
+                dataGridView1.RowCount = 0;
+                dataGridView1.RowCount = dList.Count;
+                dataGridView1.ResumeLayout();
+                
+                statusLabel.rowsCount = (int)_currentDocument.RecordCount + 1;
+                statusLabel.columnCount = _currentDocument.FieldCount + 1;
+
+                this.statusStrip1.Text = statusLabel.mainStatusLabel();
+
+                MessageBox.Show("清空表格成功", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if (result == DialogResult.No)
+            {
+                // 用户点击了 “否”：不保存，直接跳过（如果是在关闭窗体，则允许直接关闭）
+                // 这里通常留空，或者执行后续不需要保存的刷新操作
+            }
+        }
     }
 }

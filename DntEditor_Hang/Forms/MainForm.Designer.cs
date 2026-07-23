@@ -50,7 +50,9 @@ namespace DntEditor_Hang.Forms
             this.向下插入N行ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.向上插入一行ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.删除当前行ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.增加列ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.删除列ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.快捷参数窗口ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.计算ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,6 +96,9 @@ namespace DntEditor_Hang.Forms
             this.button1 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.清空DNT表格ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -206,6 +211,11 @@ namespace DntEditor_Hang.Forms
             this.向下插入N行ToolStripMenuItem,
             this.向上插入一行ToolStripMenuItem,
             this.删除当前行ToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.增加列ToolStripMenuItem,
+            this.删除列ToolStripMenuItem,
+            this.toolStripSeparator5,
+            this.清空DNT表格ToolStripMenuItem,
             this.toolStripSeparator3,
             this.快捷参数窗口ToolStripMenuItem,
             this.计算ToolStripMenuItem});
@@ -216,78 +226,92 @@ namespace DntEditor_Hang.Forms
             // 打开关闭工具栏ToolStripMenuItem
             // 
             this.打开关闭工具栏ToolStripMenuItem.Name = "打开关闭工具栏ToolStripMenuItem";
-            this.打开关闭工具栏ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.打开关闭工具栏ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.打开关闭工具栏ToolStripMenuItem.Text = "打开/关闭 工具栏";
             this.打开关闭工具栏ToolStripMenuItem.Click += new System.EventHandler(this.打开关闭工具栏ToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(251, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(267, 6);
             // 
             // 查找ToolStripMenuItem
             // 
             this.查找ToolStripMenuItem.Name = "查找ToolStripMenuItem";
-            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.查找ToolStripMenuItem.Text = "查找";
             this.查找ToolStripMenuItem.Click += new System.EventHandler(this.查找ToolStripMenuItem_Click);
             // 
             // 筛选ToolStripMenuItem
             // 
             this.筛选ToolStripMenuItem.Name = "筛选ToolStripMenuItem";
-            this.筛选ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.筛选ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.筛选ToolStripMenuItem.Text = "筛选";
             this.筛选ToolStripMenuItem.Click += new System.EventHandler(this.筛选ToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(251, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(267, 6);
             // 
             // 向下插入一行insToolStripMenuItem
             // 
             this.向下插入一行insToolStripMenuItem.Name = "向下插入一行insToolStripMenuItem";
-            this.向下插入一行insToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.向下插入一行insToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向下插入一行insToolStripMenuItem.Text = "向下插入一行(ins)";
             this.向下插入一行insToolStripMenuItem.Click += new System.EventHandler(this.向下插入一行insToolStripMenuItem_Click);
             // 
             // 向下插入N行ToolStripMenuItem
             // 
             this.向下插入N行ToolStripMenuItem.Name = "向下插入N行ToolStripMenuItem";
-            this.向下插入N行ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.向下插入N行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向下插入N行ToolStripMenuItem.Text = "向下插入N行";
             this.向下插入N行ToolStripMenuItem.Click += new System.EventHandler(this.向下插入N行ToolStripMenuItem_Click);
             // 
             // 向上插入一行ToolStripMenuItem
             // 
             this.向上插入一行ToolStripMenuItem.Name = "向上插入一行ToolStripMenuItem";
-            this.向上插入一行ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.向上插入一行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.向上插入一行ToolStripMenuItem.Text = "向上插入一行";
             this.向上插入一行ToolStripMenuItem.Click += new System.EventHandler(this.向上插入一行ToolStripMenuItem_Click);
             // 
             // 删除当前行ToolStripMenuItem
             // 
             this.删除当前行ToolStripMenuItem.Name = "删除当前行ToolStripMenuItem";
-            this.删除当前行ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.删除当前行ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.删除当前行ToolStripMenuItem.Text = "删除选中行(del)";
             this.删除当前行ToolStripMenuItem.Click += new System.EventHandler(this.删除当前行ToolStripMenuItem_Click);
             // 
-            // toolStripSeparator3
+            // toolStripSeparator4
             // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(251, 6);
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(267, 6);
+            // 
+            // 增加列ToolStripMenuItem
+            // 
+            this.增加列ToolStripMenuItem.Name = "增加列ToolStripMenuItem";
+            this.增加列ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.增加列ToolStripMenuItem.Text = "增加列";
+            this.增加列ToolStripMenuItem.Click += new System.EventHandler(this.增加列ToolStripMenuItem_Click);
+            // 
+            // 删除列ToolStripMenuItem
+            // 
+            this.删除列ToolStripMenuItem.Name = "删除列ToolStripMenuItem";
+            this.删除列ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.删除列ToolStripMenuItem.Text = "删除列";
+            this.删除列ToolStripMenuItem.Click += new System.EventHandler(this.删除列ToolStripMenuItem_Click);
             // 
             // 快捷参数窗口ToolStripMenuItem
             // 
             this.快捷参数窗口ToolStripMenuItem.Name = "快捷参数窗口ToolStripMenuItem";
-            this.快捷参数窗口ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.快捷参数窗口ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.快捷参数窗口ToolStripMenuItem.Text = "快捷参数窗口";
             this.快捷参数窗口ToolStripMenuItem.Click += new System.EventHandler(this.快捷参数窗口ToolStripMenuItem_Click);
             // 
             // 计算ToolStripMenuItem
             // 
             this.计算ToolStripMenuItem.Name = "计算ToolStripMenuItem";
-            this.计算ToolStripMenuItem.Size = new System.Drawing.Size(254, 34);
+            this.计算ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.计算ToolStripMenuItem.Text = "计算";
             this.计算ToolStripMenuItem.Click += new System.EventHandler(this.计算ToolStripMenuItem_Click);
             // 
@@ -672,6 +696,23 @@ namespace DntEditor_Hang.Forms
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(267, 6);
+            // 
+            // 清空DNT表格ToolStripMenuItem
+            // 
+            this.清空DNT表格ToolStripMenuItem.Name = "清空DNT表格ToolStripMenuItem";
+            this.清空DNT表格ToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.清空DNT表格ToolStripMenuItem.Text = "清空DNT表格";
+            this.清空DNT表格ToolStripMenuItem.Click += new System.EventHandler(this.清空DNT表格ToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(267, 6);
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -705,7 +746,7 @@ namespace DntEditor_Hang.Forms
 
         #endregion
 
-        private System.Windows.Forms.StatusStrip statusStrip1;
+        public System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 文件ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 编辑ToolStripMenuItem;
@@ -744,7 +785,6 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.ToolStripMenuItem 向下插入N行ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 向上插入一行ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 删除当前行ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem 快捷参数窗口ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 计算ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 制作翻译源文件ToolStripMenuItem;
@@ -769,5 +809,11 @@ namespace DntEditor_Hang.Forms
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ToolStripMenuItem dNT文件转换ToolStripMenuItem;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem 删除列ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 增加列ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem 清空DNT表格ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
     }
 }
